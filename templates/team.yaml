@@ -1,0 +1,77 @@
+# SpecFabric development team — humans and agents.
+# The /factory orchestrator copies this to factory/team.yaml on first run.
+# Fill in the names; the orchestrator uses them when it stops at a gate
+# ("waiting on: Product Owner (Priya)").
+
+product: <product name>
+
+# jira_account (optional, Jira mode only): email or Atlassian account ID;
+# the orchestrator assigns the Epic to this person while a gate waits on them.
+humans:
+  product_owner:            # Accountable for charter + spec gates
+    name: <name>
+    contact: <email/slack>
+    jira_account: <optional>
+  tech_lead:                # Accountable for plan gate; consulted on review
+    name: <name>
+    contact: <email/slack>
+    jira_account: <optional>
+  design_lead:              # Optional: consulted on the spec's UX section
+    name: <name or leave blank>
+    contact: <email/slack>
+    jira_account: <optional>
+  release_manager:          # Accountable for ship gate (confirms push)
+    name: <name>
+    contact: <email/slack>
+    jira_account: <optional>
+  on_call:                  # Owns incidents
+    name: <name>
+    contact: <email/slack>
+    jira_account: <optional>
+
+# Work tracker. "none" (default): SpecFabric uses only the files in git.
+# "jira": the orchestrator also mirrors each run into Jira (Epic per slug,
+# Story per user story) through a Jira MCP connector. Git stays the source
+# of truth: approvals are only ever the artifact's Status line. See
+# docs/jira.md.
+tracker:
+  mode: none                # none | jira
+  jira:
+    site: https://<org>.atlassian.net
+    project_key: <PROJ>
+    repo_url: <optional, e.g. https://github.com/org/repo/blob/main>  # makes Jira links to specs clickable
+    epic_type: Epic
+    story_type: Story
+    bug_type: Bug
+    status_map:             # SpecFabric stage -> status name in YOUR Jira workflow
+      intent: To Do
+      spec: In Progress
+      plan: In Progress
+      implement: In Progress
+      review: In Review
+      ship: Done
+    gate_label: awaiting-approval   # added to the Epic while a gate waits on a human
+
+agents:
+  orchestrator: /factory          # main session; dispatches the rest
+  charter: charter-agent
+  intent: intent-agent
+  spec: spec-agent
+  plan: plan-agent
+  implement: build-agent
+  review: review-agent
+  ship: release-agent
+  incident: incident-agent
+
+# RACI per stage. R = does the work, A = owns the gate / final say,
+# C = consulted, I = informed. gate: true means the orchestrator stops
+# until a human acts.
+raci:
+  charter:   { R: charter-agent, A: product_owner, C: [tech_lead], I: [release_manager], gate: true }
+  intent:    { R: intent-agent,  A: product_owner, C: [],          I: [tech_lead],       gate: false }
+  spec:      { R: spec-agent,    A: product_owner, C: [tech_lead, design_lead], I: [],   gate: true }
+  plan:      { R: plan-agent,    A: tech_lead,     C: [],          I: [product_owner],   gate: true }
+  implement: { R: build-agent,   A: tech_lead,     C: [],          I: [],                gate: false }
+  review:    { R: review-agent,  A: tech_lead,     C: [],          I: [product_owner],   gate: false }
+  ship:      { R: release-agent, A: release_manager, C: [tech_lead], I: [product_owner, on_call], gate: true }
+  incident:  { R: incident-agent, A: on_call,      C: [tech_lead, product_owner], I: [], gate: false }

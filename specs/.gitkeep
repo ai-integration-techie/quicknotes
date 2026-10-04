@@ -1,0 +1,3 @@
+This directory exists so `specs/` is tracked by git before the first
+`/intent` has been run. Delete this file once the first `specs/<slug>/`
+directory exists.

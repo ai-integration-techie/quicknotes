@@ -1,0 +1,2 @@
+This directory exists so `product/` is tracked by git before `/charter`
+has been run. Delete this file once `product/charter.md` exists.
