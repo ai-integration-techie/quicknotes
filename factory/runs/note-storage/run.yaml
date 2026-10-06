@@ -1,0 +1,45 @@
+# SpecFabric run ledger — one per feature slug, at factory/runs/note-storage/run.yaml.
+# Written only by the /factory orchestrator (and appended to by manual
+# stage commands). Humans read it; humans approve in the artifacts
+# themselves (Status: approved), not here.
+#
+# Stage status: pending -> in_progress -> awaiting_approval -> approved -> done
+#               (or blocked, with a reason). Non-gated stages skip
+#               awaiting_approval/approved and go straight to done.
+
+slug: note-storage
+mode: greenfield            # greenfield (came from a charter) | brownfield
+source: "product/charter.md"
+current_stage: intent
+status: pending            # pending | in_progress | awaiting_approval | blocked | done
+waiting_on: null            # e.g. "product_owner (Priya): approve specs/note-storage/spec.md"
+review_iterations: 0
+
+stages:
+  intent:    { status: pending, agent: intent-agent,  artifact: specs/note-storage/intent.md, started: null, completed: null }
+  spec:      { status: pending, agent: spec-agent,    artifact: specs/note-storage/spec.md,   started: null, completed: null, approved_by: null }
+  plan:      { status: pending, agent: plan-agent,    artifact: specs/note-storage/plan.md,   started: null, completed: null, approved_by: null }
+  implement: { status: pending, agent: build-agent,   artifact: null,                   started: null, completed: null, tests: null }
+  review:    { status: pending, agent: review-agent,  artifact: specs/note-storage/review.md, started: null, completed: null, decision: null }
+  ship:      { status: pending, agent: release-agent, artifact: null,                   started: null, completed: null, confirmed_by: null }
+
+open_questions: []          # questions relayed to humans and not yet answered
+
+tracker:                    # Jira mode only (team.yaml tracker.mode: jira); ignored otherwise
+  epic: null                # e.g. PROJ-123 (authoritative; an artifact's "Jira:" header may say "pending")
+  source_issue: null        # imported non-Epic issue linked to the Epic, if any
+  stories: {}               # user story -> Jira key, e.g. { US-1: PROJ-124 }
+  dropped_stories: {}       # stories removed from a re-approved spec (kept, never closed)
+  spec_synced: null         # spec.md Approval section the Stories were last written from
+  bugs: {}                  # incident.md path -> Jira Bug key
+  synced:                   # what Jira was last successfully set to
+    event_index: 0          # ledger events already posted as Jira comments
+    status: null            # Epic status last set
+    gate: null              # stage whose approval label/assignee is set, or null
+    closed: []              # Story keys already moved to the ship status
+  last_sync: null           # time of the last complete reconcile
+  last_seen_comment: null   # creation time of the newest Epic comment already read
+  pending: null             # {since, reason} while Jira is behind; cleared by a complete reconcile
+
+events:                     # append-only; newest last
+  - { at: 2026-10-04T08:20:09Z, stage: intent, actor: orchestrator, event: queued_from_charter, note: "product/charter.md approved by AITechie" }
