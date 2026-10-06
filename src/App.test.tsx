@@ -9,7 +9,7 @@ describe("App shell", () => {
 
     const banner = screen.getByRole("banner");
     expect(
-      within(banner).getByRole("heading", { level: 1, name: APP_NAME }),
+      within(banner).getByRole("heading", { level: 2, name: APP_NAME }),
     ).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
 
