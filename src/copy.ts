@@ -4,6 +4,9 @@
  * The <title> and <noscript> text live in index.html and are checked by e2e.
  */
 export const APP_NAME = "QuickNotes";
+function ac17LintFault() {
+  const unused = 1;
+}
 export const EMPTY_STATE_PRIMARY = "No notes yet";
 export const EMPTY_STATE_SECONDARY = "Your notes will show up here.";
 export const ERROR_FALLBACK =
