@@ -44,8 +44,8 @@ devices or a screen reader. Not marked met.
 | AC-14 | met | `package-contract.test.ts` "ci script chains the gate in order" (pass). Clean `npm run ci` **exit 0** in the right order (see above). With a lint error, `npm run ci` **exit 1**, and the log shows only `format:check` then `lint`, with typecheck/test/build/test:a11y not run. |
 | AC-15 | met | `workflow.test.ts` "one gate workflow with safe settings" (pass). The reviewer read `.github/workflows/ci.yml`: one file, `push` (`**`) + `pull_request`, `ubuntu-latest`, `permissions: contents: read`, no `secrets.`, no `continue-on-error`, no deploy or publish. |
 | AC-16 | met | `workflow.test.ts` "named step per check" (pass): it asserts the exact step names and order, including "Install Playwright Chromium". |
-| AC-17 | **pending (human)** | Needs GitHub. Open a throwaway PR and push 6 single-fault commits (lint error, type error, formatting drift, failing test, build error, axe violation). For each, record the failing step name (Lint / Type check / Format check / Unit tests / Build / Accessibility), confirm the PR check is red, and add the run links here. The local equivalents of each fault were confirmed non-zero above (AC-5/7/8/10/12, plus the build, which runs `tsc -b`). |
-| AC-18 | **pending (human)** | Needs GitHub. Push the clean feature commit and record the green "CI" run link here. The reviewer confirmed that `actions/checkout@v7` and `actions/setup-node@v7` tags exist upstream (`git ls-remote`), so the first steps should resolve. |
+| AC-17 | **met** | Throwaway draft PR #2 (closed, branch deleted), recorded 2026-10-06. Each single-fault commit's `pull_request` CI run concluded `failure` at the matching step: lint error → Lint ([run](https://github.com/ai-integration-techie/quicknotes/actions/runs/37430330091)); type error → Type check ([run](https://github.com/ai-integration-techie/quicknotes/actions/runs/37430396706)); formatting drift → Format check ([run](https://github.com/ai-integration-techie/quicknotes/actions/runs/37430456668)); failing test → Unit tests ([run](https://github.com/ai-integration-techie/quicknotes/actions/runs/37430520175)); build error → Build ([run](https://github.com/ai-integration-techie/quicknotes/actions/runs/37430610787)); axe violation → Accessibility ([run](https://github.com/ai-integration-techie/quicknotes/actions/runs/37430674533)). |
+| AC-18 | **met** | Green "CI" run (job `quality-gate`, conclusion: success) on cbfa654 (`feat/project-foundation`), recorded 2026-10-06: https://github.com/ai-integration-techie/quicknotes/actions/runs/37423715846 |
 | AC-19 | met | `src/App.test.tsx` "renders banner with the only h1 and the empty state in main" (pass). |
 | AC-20 | met | `src/App.test.tsx` "has no interactive controls" (pass). |
 | AC-21 | met | `e2e/document.spec.ts` "document head meets R21" (pass). The reviewer read `dist/index.html`: `lang="en"`, `charset="UTF-8"`, the exact viewport string, title QuickNotes. |
@@ -65,8 +65,9 @@ devices or a screen reader. Not marked met.
 | AC-35 | **pending (human)** | Needs macOS VoiceOver + Safari and iOS VoiceOver + Safari. Record the announced order: title "QuickNotes" → "QuickNotes, heading level 1" → "No notes yet" → "Your notes will show up here." Also do the keyboard-only pass the spec mentions (Tab moves no focus into the content, and nothing traps focus). |
 | AC-36 | met | `licences.test.ts` (4 tests pass): every lockfile package is OSI-licensed or a listed exception at its exact licence. The exception map is frozen and holds exactly the 3 packages. `e2e/document.spec.ts` "R5 licence exceptions are not shipped" (pass). Reviewer check: all 3 exceptions are marked `dev: true` in `package-lock.json`, and `grep` finds none of their names in `dist/`. `workflow.test.ts` asserts only `actions/*` actions. The README needs no paid service or secret. |
 
-**Summary:** 32 met, 1 partially met (AC-34, the manual half is pending), and
-3 pending human checks (AC-17, AC-18, AC-35). None of the 36 is not met. The plan routes all
+**Summary:** 34 met (AC-17 and AC-18 recorded on GitHub, 2026-10-06), 1 partially
+met (AC-34, the manual browser matrix is deferred to the owner), and 1 pending human
+check (AC-35, VoiceOver and keyboard pass, deferred to the owner). None of the 36 is not met. The plan routes all
 pending items to review on purpose (plan "Test strategy" and step 11). The
 reviewer can't do them without GitHub access, a Firefox/Safari/iOS device
 matrix and VoiceOver.
@@ -130,4 +131,4 @@ If any of these fails, this review flips to `changes_requested` with that
 item as the blocker.
 
 ## Sign-off
-- Reviewed by: <name>, <date>
+- Reviewed by: AITechie, 2026-10-06.

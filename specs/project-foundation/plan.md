@@ -449,3 +449,4 @@ proposed when `note-storage` adds real logic.
 ## Approval
 - Previous revision (2026-10-04, before Revision 2026-10-05): Approved by: AITechie, 2026-10-04
 - Approved by: AITechie, 2026-10-05
+- Shipped: 2026-10-06, cbfa654 (PR #1, merged to main)

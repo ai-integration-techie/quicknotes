@@ -1,11 +1,10 @@
 # SpecFabric board — QuickNotes
-_Updated 2026-10-06T06:25:00Z by /factory_
+_Updated 2026-10-06T20:40:21Z by /factory_
 
 Charter: `product/charter.md` approved (AITechie).
 
 | Feature | Mode | Stage | Status | Waiting on | Last event |
 |---|---|---|---|---|---|
-| project-foundation | greenfield | ship | in_progress | — | 2026-10-06T06:25:00Z confirmed |
 | create-note | greenfield | intent | pending | — | 2026-10-04T08:20:09Z queued_from_charter |
 | delete-note | greenfield | intent | pending | — | 2026-10-04T08:20:09Z queued_from_charter |
 | edit-note | greenfield | intent | pending | — | 2026-10-04T08:20:09Z queued_from_charter |
@@ -15,6 +14,7 @@ Charter: `product/charter.md` approved (AITechie).
 | pwa-offline | greenfield | intent | pending | — | 2026-10-04T08:20:09Z queued_from_charter |
 | search-notes | greenfield | intent | pending | — | 2026-10-04T08:20:09Z queued_from_charter |
 | theme-mode | greenfield | intent | pending | — | 2026-10-04T08:20:09Z queued_from_charter |
+| project-foundation | greenfield | ship | done | — | 2026-10-06T07:37:45Z merged |
 
 ## Team
 | Role | Name | Gates |

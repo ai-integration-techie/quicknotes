@@ -238,4 +238,5 @@ No questions are open. The original text is kept below for the record.
      framework; do not skip it. -->
 - Previous revision (2026-10-04, before Revision 2026-10-05): Approved by: AITechie, 2026-10-04
 - Approved by: AITechie, 2026-10-05
+- Shipped: 2026-10-06, cbfa654 (PR #1, merged to main)
 - 

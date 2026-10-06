@@ -11,7 +11,7 @@ slug: project-foundation
 mode: greenfield            # greenfield (came from a charter) | brownfield
 source: "product/charter.md"
 current_stage: ship
-status: in_progress            # pending | in_progress | awaiting_approval | blocked | done
+status: done            # pending | in_progress | awaiting_approval | blocked | done
 waiting_on: null            # e.g. "product_owner (Priya): approve specs/project-foundation/spec.md"
 review_iterations: 0
 
@@ -21,7 +21,7 @@ stages:
   plan:      { status: done, agent: plan-agent,    artifact: specs/project-foundation/plan.md,   started: 2026-10-06T05:30:19Z, completed: 2026-10-06T05:54:30Z, approved_by: "AITechie, 2026-10-05" }
   implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-06T05:54:30Z, completed: 2026-10-06T05:56:53Z, tests: "vitest 39/39, playwright 17/17, ci exit 0" }
   review:    { status: done, agent: review-agent,  artifact: specs/project-foundation/review.md, started: 2026-10-06T05:56:53Z, completed: 2026-10-06T06:01:32Z, decision: approve}
-  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-06T06:01:32Z, completed: null, confirmed_by: "AITechie (Release Manager), in conversation" }
+  ship:      { status: done, agent: release-agent, artifact: null,                   started: 2026-10-06T06:01:32Z, completed: 2026-10-06T07:16:34Z, confirmed_by: "AITechie (Release Manager), in conversation" }
 
 open_questions: []          # questions relayed to humans and not yet answered
 
@@ -69,3 +69,6 @@ events:                     # append-only; newest last
   - { at: 2026-10-06T06:01:32Z, stage: ship, actor: orchestrator, event: stage_started, note: "release-agent dispatched (confirmed: no)" }
   - { at: 2026-10-06T06:03:17Z, stage: ship, actor: orchestrator, event: awaiting_approval, note: "Release Manager (AITechie): confirm commit + push of feat/project-foundation" }
   - { at: 2026-10-06T06:25:00Z, stage: ship, actor: orchestrator, event: confirmed, note: "AITechie said yes to commit + push feat/project-foundation" }
+  - { at: 2026-10-06T06:26:38Z, stage: ship, actor: orchestrator, event: shipped, note: "pushed cbfa654 to orgin/feat/project-foundation; PR not opened (no main on remote)" }
+  - { at: 2026-10-06T07:16:34Z, stage: ship, actor: orchestrator, event: shipped, note: "cbfa654 pushed; main pushed; PR https://github.com/ai-integration-techie/quicknotes/pull/1 (merge pending AC-17/18/34/35)" }
+  - { at: 2026-10-06T07:37:45Z, stage: ship, actor: orchestrator, event: merged, note: "PR #1 merged to main by AITechie 2026-10-06T07:22:45Z; AC-17 (PR #2 throwaway, all 6 steps red) and AC-18 recorded in review.md (uncommitted)" }
