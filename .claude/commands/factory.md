@@ -147,6 +147,31 @@ can't be any of them.
 7. Before stopping for any other reason (blocked, or the run is done),
    also reconcile Jira (section 6).
 
+## 2a. Solo mode (`mode: solo` in `factory/team.yaml`)
+Applies only when `team.yaml` says `mode: solo`; otherwise section 2 runs
+unchanged. Everything else in section 2 still holds.
+- **Standing decisions.** If `product/decisions.md` exists with `Status:
+  approved`, tell `intent-agent`, `spec-agent` and `plan-agent` to read it
+  first, apply what it covers as decisions (citing it), and raise only
+  the questions its §1.2 says must go to the owner.
+- **One design gate.** When `spec-agent` returns `drafted`, do not stop:
+  dispatch `plan-agent` on the draft spec (telling it the spec is a
+  draft under review), then set both the spec and plan stages
+  `awaiting_approval` with one `waiting_on: "Owner (<name>): approve
+  specs/<slug>/spec.md and plan.md"` and one `awaiting_approval` event.
+  Step 2 sync: proceed to implement only when **both** files say
+  `Status: approved` (record two `approved` events). If only one is
+  approved, stay at the gate. If the spec changed after the plan was
+  drafted (the spec's file is newer than the plan's), re-dispatch
+  `plan-agent` before implementing, and keep the gate.
+- **One ship yes.** After the `confirmed: no` pass, ask once: "Commit,
+  push, open the PR, and merge after CI is green?". On an explicit yes:
+  commit, push the branch, open the PR, wait for CI; if CI is green,
+  merge (merge commit, delete the branch), wait for the Deploy run, and
+  check the live URL. If CI or Deploy fails, stop and mark ship
+  `blocked`; never merge on red and never force-push.
+- Gates are still human: never write `Status: approved`.
+
 ## 3. Charter flow
 1. Dispatch `charter-agent` with the product name and what the user has
    said; relay questions as in 2.4.

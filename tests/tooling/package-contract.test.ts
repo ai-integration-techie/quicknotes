@@ -46,6 +46,13 @@ describe("package contract", () => {
     expect(uiKits).toEqual([]);
   });
 
+  it("runtime dependencies are exactly react and react-dom (create-note AC-48)", () => {
+    expect(Object.keys(pkg.dependencies ?? {}).sort()).toEqual([
+      "react",
+      "react-dom",
+    ]);
+  });
+
   it("application source is TypeScript only (R2)", () => {
     const scripts = listFiles("src").filter((file) =>
       /\.(js|jsx|mjs|cjs)$/.test(file),

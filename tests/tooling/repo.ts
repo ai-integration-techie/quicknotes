@@ -147,3 +147,107 @@ export function importClosure(entries: readonly string[]): Set<string> {
   }
   return seen;
 }
+
+const UI_EXCLUDED_DIRS = ["src/notes/", "src/storage/", "src/test/"];
+
+/**
+ * create-note R29: the UI modules are `index.html` plus every non-test
+ * `.ts`, `.tsx` and `.css` file under `src/` outside `src/notes/`,
+ * `src/storage/` and `src/test/`. Found by listing files, not a fixed list.
+ */
+export function uiModules(): string[] {
+  const sources = listFiles("src")
+    .map((file) => file.split(sep).join("/"))
+    .filter(
+      (file) =>
+        /\.(?:tsx?|css)$/.test(file) &&
+        !isTestFile(file) &&
+        !UI_EXCLUDED_DIRS.some((dir) => file.startsWith(dir)),
+    );
+  return ["index.html", ...sources];
+}
+
+export interface ExportSurface {
+  /** Names exported as values (functions, classes, constants, value specifiers). */
+  readonly values: string[];
+  /** Names exported as types only (interfaces, type aliases, `type` specifiers). */
+  readonly types: string[];
+  /** Module specifiers of `export * from` statements (a pinned surface allows none). */
+  readonly starExports: string[];
+  /** Module specifiers of every `export … from` statement. */
+  readonly reExportSources: string[];
+}
+
+function hasExportKeyword(node: ts.Node): boolean {
+  return (
+    ts.canHaveModifiers(node) &&
+    (ts.getModifiers(node) ?? []).some(
+      (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+    )
+  );
+}
+
+function declarationNames(node: ts.Statement): string[] {
+  if (ts.isVariableStatement(node)) {
+    return node.declarationList.declarations.flatMap((declaration) =>
+      ts.isIdentifier(declaration.name) ? [declaration.name.text] : [],
+    );
+  }
+  if (
+    (ts.isFunctionDeclaration(node) ||
+      ts.isClassDeclaration(node) ||
+      ts.isEnumDeclaration(node)) &&
+    node.name
+  ) {
+    return [node.name.text];
+  }
+  return [];
+}
+
+/**
+ * The exported names of a module's source text, read with the TypeScript
+ * compiler API so that type-only exports are told apart from value exports
+ * (create-note AC-45).
+ */
+export function exportSurface(text: string): ExportSurface {
+  const source = ts.createSourceFile(
+    "surface.ts",
+    text,
+    ts.ScriptTarget.ES2022,
+  );
+  const values: string[] = [];
+  const types: string[] = [];
+  const starExports: string[] = [];
+  const reExportSources: string[] = [];
+  for (const statement of source.statements) {
+    if (ts.isExportDeclaration(statement)) {
+      const from =
+        statement.moduleSpecifier &&
+        ts.isStringLiteral(statement.moduleSpecifier)
+          ? statement.moduleSpecifier.text
+          : undefined;
+      if (from !== undefined) reExportSources.push(from);
+      const clause = statement.exportClause;
+      if (!clause || !ts.isNamedExports(clause)) {
+        starExports.push(from ?? "");
+        continue;
+      }
+      for (const element of clause.elements) {
+        const target =
+          statement.isTypeOnly || element.isTypeOnly ? types : values;
+        target.push(element.name.text);
+      }
+      continue;
+    }
+    if (!hasExportKeyword(statement)) continue;
+    if (
+      ts.isInterfaceDeclaration(statement) ||
+      ts.isTypeAliasDeclaration(statement)
+    ) {
+      types.push(statement.name.text);
+    } else {
+      values.push(...declarationNames(statement));
+    }
+  }
+  return { values, types, starExports, reExportSources };
+}

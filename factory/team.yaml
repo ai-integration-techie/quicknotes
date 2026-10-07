@@ -5,6 +5,14 @@
 
 product: QuickNotes
 
+# Process mode. "team" (default): every gate in `raci` stops on its own.
+# "solo": one person holds every role, so the orchestrator (see
+# .claude/commands/factory.md section 2a) drafts spec + plan together and
+# stops once for both, and a single ship "yes" covers commit, push, PR
+# and merge after CI is green. Approvals are still only ever a human
+# editing the artifacts' Status lines.
+mode: solo                # team | solo
+
 # jira_account (optional, Jira mode only): email or Atlassian account ID;
 # the orchestrator assigns the Epic to this person while a gate waits on them.
 humans:
