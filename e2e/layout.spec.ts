@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { gotoApp } from "./app";
 
 const TEXTS = ["QuickNotes", "No notes yet", "Your notes will show up here."];
 
@@ -36,7 +37,7 @@ test.describe("layout", () => {
       page,
     }) => {
       await page.setViewportSize(viewport);
-      await page.goto("/");
+      await gotoApp(page);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       expect(await hasHorizontalOverflow(page)).toBe(false);
@@ -64,7 +65,7 @@ test.describe("layout", () => {
 
   test("reflows at 320px with 200% root font", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
-    await page.goto("/");
+    await gotoApp(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.evaluate(() => {
       document.documentElement.style.fontSize = "200%";
@@ -78,7 +79,7 @@ test.describe("layout", () => {
 
   test("survives WCAG 1.4.12 text spacing at 360px", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 740 });
-    await page.goto("/");
+    await gotoApp(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.addStyleTag({ content: TEXT_SPACING_CSS });
 
@@ -96,7 +97,7 @@ test.describe("layout", () => {
   });
 
   test("keyboard focus shows 2px accent outline", async ({ page }) => {
-    await page.goto("/");
+    await gotoApp(page);
     await page.locator("main").evaluate((main) => {
       const button = document.createElement("button");
       button.type = "button";
@@ -122,7 +123,7 @@ test.describe("layout", () => {
   });
 
   test("no animations or transitions", async ({ page }) => {
-    await page.goto("/");
+    await gotoApp(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
     const animated = await page.evaluate(() =>

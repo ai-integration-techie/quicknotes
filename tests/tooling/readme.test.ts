@@ -29,8 +29,11 @@ const SCRIPTS = [
   "test",
   "test:a11y",
   "build",
+  "preview",
   "ci",
 ];
+
+const LIVE_URL = "https://ai-integration-techie.github.io/quicknotes/";
 
 describe("README", () => {
   it("has the QuickNotes title", () => {
@@ -51,6 +54,29 @@ describe("README", () => {
       expect(body, script).toMatch(
         new RegExp(`^- \`npm (?:run )?${escaped}\`\\s*[:\\-–]\\s*\\S.+$`, "m"),
       );
+    }
+  });
+
+  it("documents deployment", () => {
+    const body = section("Deployment");
+    for (const phrase of [
+      LIVE_URL,
+      "npm run ci",
+      "Run workflow",
+      "revert",
+      "GitHub Actions",
+    ]) {
+      expect(body, phrase).toContain(phrase);
+    }
+  });
+
+  it("Getting started dev URL ends in /quicknotes/", () => {
+    const urls = section("Getting started").match(
+      /http:\/\/localhost:\d+\/[^\s`)]*/g,
+    );
+    expect(urls?.length).toBeGreaterThan(0);
+    for (const url of urls ?? []) {
+      expect(url).toMatch(/\/quicknotes\/$/);
     }
   });
 });

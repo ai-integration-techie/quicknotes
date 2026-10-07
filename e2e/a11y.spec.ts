@@ -1,11 +1,12 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { gotoApp } from "./app";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
 test.describe("accessibility", () => {
   test("shell has no WCAG 2.1 A/AA axe violations", async ({ page }) => {
-    await page.goto("/");
+    await gotoApp(page);
     await expect(
       page.getByRole("heading", { level: 1, name: "QuickNotes" }),
     ).toBeVisible();
@@ -26,7 +27,7 @@ test.describe("accessibility", () => {
   });
 
   test("axe detects a contrast failure", async ({ page }) => {
-    await page.goto("/");
+    await gotoApp(page);
     const secondary = page.getByText("Your notes will show up here.");
     await expect(secondary).toBeVisible();
     // zinc-300 on zinc-50 is about 1.4:1, well below 4.5:1.

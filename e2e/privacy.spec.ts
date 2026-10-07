@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
+import { gotoApp } from "./app";
 
 test.describe("privacy", () => {
   test("no web fonts; h1 uses system stack", async ({ page }) => {
     const requests: string[] = [];
     page.on("request", (request) => requests.push(request.url()));
 
-    await page.goto("/", { waitUntil: "networkidle" });
+    await gotoApp(page, { waitUntil: "networkidle" });
 
     expect(
       requests.filter((url) => /\.(woff2?|ttf|otf)(\?|$)/i.test(url)),
@@ -20,7 +21,7 @@ test.describe("privacy", () => {
     const requests: string[] = [];
     page.on("request", (request) => requests.push(request.url()));
 
-    await page.goto("/", { waitUntil: "networkidle" });
+    await gotoApp(page, { waitUntil: "networkidle" });
 
     const origin = new URL(page.url()).origin;
     expect(requests.length).toBeGreaterThan(0);
@@ -33,7 +34,7 @@ test.describe("privacy", () => {
     const context = await browser.newContext();
     try {
       const page = await context.newPage();
-      await page.goto("/", { waitUntil: "networkidle" });
+      await gotoApp(page, { waitUntil: "networkidle" });
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       const storage = await page.evaluate(async () => ({

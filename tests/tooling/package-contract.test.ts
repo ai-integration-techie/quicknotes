@@ -75,6 +75,7 @@ describe("package contract", () => {
     expect(pkg.scripts).toMatchObject({
       dev: "vite",
       build: "tsc -b && vite build",
+      preview: "vite preview",
       typecheck: "tsc -b",
       lint: "eslint . --max-warnings 0",
       format: "prettier --write .",

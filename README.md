@@ -11,7 +11,7 @@ If `nvm use` refuses to run because your `~/.npmrc` sets `prefix`, either put a 
 1. `git clone <this repo's URL>` and `cd` into it.
 2. `npm install`
 3. `npm run dev`
-4. Open the local URL printed in the terminal (usually `http://localhost:5173/`).
+4. Open the local URL printed in the terminal (usually `http://localhost:5173/quicknotes/`). The app is served under `/quicknotes/`, the same path as the live site.
 
 ## Scripts
 
@@ -23,7 +23,18 @@ If `nvm use` refuses to run because your `~/.npmrc` sets `prefix`, either put a 
 - `npm test`: run the Vitest unit, component and tooling tests once (jsdom, no watch mode).
 - `npm run test:a11y`: build, serve the production build and run the Playwright + axe accessibility and layout checks in headless Chromium. Run `npx playwright install chromium` once first.
 - `npm run build`: type-check, then write the static production build to `dist/`.
+- `npm run preview`: serve the production build from `dist/` locally at `http://localhost:4173/quicknotes/` (run `npm run build` first).
 - `npm run ci`: run format check, lint, typecheck, tests, build and the accessibility check in order, stopping at the first failure (the same gate as GitHub Actions).
+
+## Deployment
+
+The app is live at https://ai-integration-techie.github.io/quicknotes/, served by GitHub Pages.
+
+- **Automatic:** every push to `main` runs the `Deploy` workflow. It runs the full gate (`npm run ci`) on that commit and publishes the `dist/` it built only if every check passes.
+- **By hand:** in GitHub, open Actions → Deploy → Run workflow and pick branch `main`. A run started on any other branch runs the gate but never publishes.
+- **Failures:** if the gate or the publish step fails, the run shows as a failed `Deploy` run on the Actions page and in the commit's checks, and the previous version stays live.
+- **Rollback:** revert the bad commit on `main`. The revert deploys through the normal path.
+- **One-time setup:** in the repository's Settings → Pages, set Source to "GitHub Actions" before the first deploy.
 
 ## How this project is built
 
