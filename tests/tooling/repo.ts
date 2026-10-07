@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, posix, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 /** Absolute path of the repository root. */
 export const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -67,3 +68,82 @@ export const R5_EXCEPTIONS: Readonly<Record<string, string>> = Object.freeze({
   "language-subtag-registry": "CC0-1.0",
   "mdn-data": "CC0-1.0",
 });
+
+/** True for `*.test.ts` / `*.test.tsx` files. */
+export function isTestFile(file: string): boolean {
+  return /\.test\.tsx?$/.test(file);
+}
+
+/** Non-test source files of the note-storage layer (`src/notes/`, `src/storage/`). */
+export function storageSourceFiles(): string[] {
+  return ["src/notes", "src/storage"]
+    .flatMap((dir) => listFiles(dir))
+    .filter((file) => /\.tsx?$/.test(file) && !isTestFile(file));
+}
+
+/**
+ * Raw import specifiers in `text`, by file type: TypeScript static,
+ * `export ... from` and dynamic imports; CSS `@import`; HTML `src=`.
+ */
+export function parseImports(text: string, file: string): string[] {
+  if (/\.(?:[cm]?[jt]sx?)$/.test(file)) {
+    return ts
+      .preProcessFile(text, true, true)
+      .importedFiles.map((ref) => ref.fileName);
+  }
+  if (file.endsWith(".css")) {
+    return [...text.matchAll(/@import\s+(?:url\()?\s*["']([^"']+)["']/g)].map(
+      (match) => match[1] ?? "",
+    );
+  }
+  if (file.endsWith(".html")) {
+    return [...text.matchAll(/\bsrc\s*=\s*["']([^"']+)["']/g)].map(
+      (match) => match[1] ?? "",
+    );
+  }
+  return [];
+}
+
+const RESOLVE_SUFFIXES = ["", ".ts", ".tsx", "/index.ts", "/index.tsx"];
+
+/**
+ * Resolves a specifier from repo-relative `fromFile`: relative and
+ * root-relative paths become repo-relative files (trying `.ts`, `.tsx`,
+ * `/index.ts`, `/index.tsx`); bare specifiers stay package names.
+ */
+export function resolveImport(specifier: string, fromFile: string): string {
+  if (!specifier.startsWith(".") && !specifier.startsWith("/"))
+    return specifier;
+  const base = specifier.startsWith("/")
+    ? posix.normalize(specifier.slice(1))
+    : posix.join(posix.dirname(fromFile.split(sep).join("/")), specifier);
+  const match = RESOLVE_SUFFIXES.map((suffix) => base + suffix).find(
+    (candidate) => exists(candidate) && statSync(repoPath(candidate)).isFile(),
+  );
+  return match ?? base;
+}
+
+/** Resolved imports of a repo-relative file. */
+export function importsOf(file: string): string[] {
+  return parseImports(readText(file), file).map((spec) =>
+    resolveImport(spec, file),
+  );
+}
+
+/**
+ * Every module reachable from `entries` (repo-relative files), including the
+ * entries themselves and bare package names, which are not followed.
+ */
+export function importClosure(entries: readonly string[]): Set<string> {
+  const seen = new Set<string>();
+  const queue = entries.map((file) => file.split(sep).join("/"));
+  while (queue.length > 0) {
+    const file = queue.shift() as string;
+    if (seen.has(file)) continue;
+    seen.add(file);
+    if (exists(file) && statSync(repoPath(file)).isFile()) {
+      queue.push(...importsOf(file));
+    }
+  }
+  return seen;
+}

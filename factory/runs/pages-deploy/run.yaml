@@ -11,7 +11,7 @@ slug: pages-deploy
 mode: greenfield            # greenfield (came from a charter) | brownfield
 source: "product/charter.md"
 current_stage: ship
-status: in_progress            # pending | in_progress | awaiting_approval | blocked | done
+status: done            # pending | in_progress | awaiting_approval | blocked | done
 waiting_on: null            # e.g. "product_owner (Priya): approve specs/pages-deploy/spec.md"
 review_iterations: 0
 
@@ -21,7 +21,7 @@ stages:
   plan:      { status: done, agent: plan-agent,    artifact: specs/pages-deploy/plan.md,   started: 2026-10-07T04:23:23Z, completed: 2026-10-07T04:30:20Z, approved_by: "AITechie, 2026-10-06" }
   implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-07T04:30:21Z, completed: 2026-10-07T04:36:17Z, tests: "vitest 93/93, playwright 23/23, ci exit 0" }
   review:    { status: done, agent: review-agent,  artifact: specs/pages-deploy/review.md, started: 2026-10-07T04:36:17Z, completed: 2026-10-07T04:38:43Z, decision: approve}
-  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-07T04:38:43Z, completed: null, confirmed_by: "AITechie (Release Manager), in conversation" }
+  ship:      { status: done, agent: release-agent, artifact: null,                   started: 2026-10-07T04:38:43Z, completed: 2026-10-07T04:48:49Z, confirmed_by: "AITechie (Release Manager), in conversation" }
 
 open_questions: []          # questions relayed to humans and not yet answered
 
@@ -60,3 +60,5 @@ events:                     # append-only; newest last
   - { at: 2026-10-07T04:38:43Z, stage: ship, actor: orchestrator, event: stage_started, note: "release-agent dispatched (confirmed: no)" }
   - { at: 2026-10-07T04:40:27Z, stage: ship, actor: orchestrator, event: awaiting_approval, note: "Release Manager (AITechie): confirm commit + push of feat/pages-deploy" }
   - { at: 2026-10-07T04:41:10Z, stage: ship, actor: orchestrator, event: confirmed, note: "AITechie said yes: commit, push, PR, enable Pages" }
+  - { at: 2026-10-07T04:42:33Z, stage: ship, actor: orchestrator, event: shipped, note: "c7007e1 pushed to orgin/feat/pages-deploy; PR https://github.com/ai-integration-techie/quicknotes/pull/3; Pages enabled (build_type workflow); R6 ok (CI green x2, no Deploy run); AC-11 ok (env: main-only branch policy, no reviewers/wait)" }
+  - { at: 2026-10-07T04:48:49Z, stage: ship, actor: orchestrator, event: shipped, note: "PR 3 merged (d86215f) by AITechie; Deploy run 37573026374 green; live https://ai-integration-techie.github.io/quicknotes/ 200; AC-32 dispatch run 37573136201 green; AC-30 headless: only github.io host, 0 console errors" }
