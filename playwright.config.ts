@@ -1,7 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import { APP_BASE } from "./vite.config";
 
 const PORT = 4173;
-const BASE_URL = `http://localhost:${PORT}`;
+const BASE_URL = `http://localhost:${PORT}${APP_BASE}`;
 
 export default defineConfig({
   testDir: "e2e",

@@ -2,11 +2,14 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
-import { R5_EXCEPTIONS } from "../tests/tooling/repo";
+import { APP_PATH, gotoApp } from "./app";
+import { R5_EXCEPTIONS, exists } from "../tests/tooling/repo";
 
 const NOSCRIPT_COPY =
   "QuickNotes needs JavaScript to run. Please turn it on and reload the page.";
 const DIST = fileURLToPath(new URL("../dist/", import.meta.url));
+const STATIC_FILE = /\.(html|js|css|png|jpe?g|gif|svg|ico|webp|avif)$/i;
+const HOST_CONFIG = new Set(["_worker.js", "_redirects", "_headers", "CNAME"]);
 
 function filesUnder(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -28,10 +31,10 @@ test.describe("document", () => {
   });
 
   test("document head meets R21", async ({ page, request }) => {
-    const html = await (await request.get("/")).text();
+    const html = await (await request.get(APP_PATH)).text();
     expect(html).toMatch(/<meta charset="utf-8"\s*\/?>/i);
 
-    await page.goto("/");
+    await gotoApp(page);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page).toHaveTitle("QuickNotes");
     const charset = await page.locator("meta[charset]").getAttribute("charset");
@@ -46,7 +49,7 @@ test.describe("document", () => {
     browser,
     request,
   }) => {
-    const html = await (await request.get("/")).text();
+    const html = await (await request.get(APP_PATH)).text();
     const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(html)?.[1] ?? "";
     expect(
       noscript
@@ -58,7 +61,7 @@ test.describe("document", () => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     try {
       const page = await context.newPage();
-      await page.goto("/");
+      await gotoApp(page);
       // Playwright's text selectors skip <noscript>, so target its content directly.
       const message = page.locator("noscript p");
       await expect(message).toBeVisible();
@@ -86,5 +89,20 @@ test.describe("document", () => {
       );
     });
     expect(hits).toEqual([]);
+  });
+
+  test("dist is static files only, with no host config or CNAME", () => {
+    const files = filesUnder(DIST).map((file) => relative(DIST, file));
+    expect(files.length).toBeGreaterThan(0);
+    expect(files.filter((file) => !STATIC_FILE.test(file))).toEqual([]);
+
+    const segments = files.flatMap((file) => file.split(/[\\/]/));
+    expect(segments.filter((name) => HOST_CONFIG.has(name))).toEqual([]);
+    expect(
+      files.filter((file) =>
+        file.split(/[\\/]/).slice(0, -1).includes("functions"),
+      ),
+    ).toEqual([]);
+    expect(exists("CNAME")).toBe(false);
   });
 });

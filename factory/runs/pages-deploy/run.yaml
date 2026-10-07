@@ -10,18 +10,18 @@
 slug: pages-deploy
 mode: greenfield            # greenfield (came from a charter) | brownfield
 source: "product/charter.md"
-current_stage: intent
-status: pending            # pending | in_progress | awaiting_approval | blocked | done
+current_stage: ship
+status: in_progress            # pending | in_progress | awaiting_approval | blocked | done
 waiting_on: null            # e.g. "product_owner (Priya): approve specs/pages-deploy/spec.md"
 review_iterations: 0
 
 stages:
-  intent:    { status: pending, agent: intent-agent,  artifact: specs/pages-deploy/intent.md, started: null, completed: null }
-  spec:      { status: pending, agent: spec-agent,    artifact: specs/pages-deploy/spec.md,   started: null, completed: null, approved_by: null }
-  plan:      { status: pending, agent: plan-agent,    artifact: specs/pages-deploy/plan.md,   started: null, completed: null, approved_by: null }
-  implement: { status: pending, agent: build-agent,   artifact: null,                   started: null, completed: null, tests: null }
-  review:    { status: pending, agent: review-agent,  artifact: specs/pages-deploy/review.md, started: null, completed: null, decision: null }
-  ship:      { status: pending, agent: release-agent, artifact: null,                   started: null, completed: null, confirmed_by: null }
+  intent:    { status: done, agent: intent-agent,  artifact: specs/pages-deploy/intent.md, started: 2026-10-06T20:54:05Z, completed: 2026-10-06T21:01:26Z}
+  spec:      { status: done, agent: spec-agent,    artifact: specs/pages-deploy/spec.md,   started: 2026-10-06T21:01:26Z, completed: 2026-10-07T04:23:23Z, approved_by: "AITechie, 2026-10-06" }
+  plan:      { status: done, agent: plan-agent,    artifact: specs/pages-deploy/plan.md,   started: 2026-10-07T04:23:23Z, completed: 2026-10-07T04:30:20Z, approved_by: "AITechie, 2026-10-06" }
+  implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-07T04:30:21Z, completed: 2026-10-07T04:36:17Z, tests: "vitest 93/93, playwright 23/23, ci exit 0" }
+  review:    { status: done, agent: review-agent,  artifact: specs/pages-deploy/review.md, started: 2026-10-07T04:36:17Z, completed: 2026-10-07T04:38:43Z, decision: approve}
+  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-07T04:38:43Z, completed: null, confirmed_by: "AITechie (Release Manager), in conversation" }
 
 open_questions: []          # questions relayed to humans and not yet answered
 
@@ -43,3 +43,20 @@ tracker:                    # Jira mode only (team.yaml tracker.mode: jira); ign
 
 events:                     # append-only; newest last
   - { at: 2026-10-04T08:20:09Z, stage: intent, actor: orchestrator, event: queued_from_charter, note: "product/charter.md approved by AITechie" }
+  - { at: 2026-10-06T20:54:05Z, stage: intent, actor: orchestrator, event: stage_started, note: "intent-agent dispatched" }
+  - { at: 2026-10-06T21:01:26Z, stage: intent, actor: orchestrator, event: intent_drafted, note: "specs/pages-deploy/intent.md" }
+  - { at: 2026-10-06T21:01:26Z, stage: spec, actor: orchestrator, event: stage_started, note: "spec-agent dispatched" }
+  - { at: 2026-10-06T21:07:00Z, stage: spec, actor: orchestrator, event: awaiting_approval, note: "Product Owner (AITechie): approve specs/pages-deploy/spec.md" }
+  - { at: 2026-10-07T04:23:23Z, stage: spec, actor: orchestrator, event: approved, note: "spec.md approved by AITechie, 2026-10-06" }
+  - { at: 2026-10-07T04:23:23Z, stage: spec, actor: orchestrator, event: stage_done, note: "spec gate passed" }
+  - { at: 2026-10-07T04:23:23Z, stage: plan, actor: orchestrator, event: stage_started, note: "plan-agent dispatched" }
+  - { at: 2026-10-07T04:28:10Z, stage: plan, actor: orchestrator, event: awaiting_approval, note: "Tech Lead (AITechie): approve specs/pages-deploy/plan.md" }
+  - { at: 2026-10-07T04:30:20Z, stage: plan, actor: orchestrator, event: approved, note: "plan.md approved by AITechie, 2026-10-06" }
+  - { at: 2026-10-07T04:30:20Z, stage: plan, actor: orchestrator, event: stage_done, note: "plan gate passed" }
+  - { at: 2026-10-07T04:30:21Z, stage: implement, actor: orchestrator, event: stage_started, note: "build-agent dispatched" }
+  - { at: 2026-10-07T04:36:17Z, stage: implement, actor: orchestrator, event: stage_done, note: "tests green: vitest 93/93, playwright 23/23, npm run ci exit 0 (Node 24.18.0)" }
+  - { at: 2026-10-07T04:36:17Z, stage: review, actor: orchestrator, event: stage_started, note: "review-agent dispatched" }
+  - { at: 2026-10-07T04:38:43Z, stage: review, actor: orchestrator, event: review_decision, note: "approve; pending manual: R6 on PR, Pages source, AC-11, AC-6, AC-32, AC-30, AC-31, A3" }
+  - { at: 2026-10-07T04:38:43Z, stage: ship, actor: orchestrator, event: stage_started, note: "release-agent dispatched (confirmed: no)" }
+  - { at: 2026-10-07T04:40:27Z, stage: ship, actor: orchestrator, event: awaiting_approval, note: "Release Manager (AITechie): confirm commit + push of feat/pages-deploy" }
+  - { at: 2026-10-07T04:41:10Z, stage: ship, actor: orchestrator, event: confirmed, note: "AITechie said yes: commit, push, PR, enable Pages" }

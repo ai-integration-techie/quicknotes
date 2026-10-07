@@ -20,7 +20,7 @@ describe("dev server", () => {
     await server.listen();
 
     const url = server.resolvedUrls?.local[0];
-    expect(url).toMatch(/^http:\/\/localhost:\d+\/$/);
+    expect(url).toMatch(/^http:\/\/localhost:\d+\/quicknotes\/$/);
 
     const response = await fetch(url!);
     expect(response.status).toBe(200);
