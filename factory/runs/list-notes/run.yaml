@@ -10,18 +10,18 @@
 slug: list-notes
 mode: greenfield            # greenfield (came from a charter) | brownfield
 source: "product/charter.md"
-current_stage: intent
-status: pending            # pending | in_progress | awaiting_approval | blocked | done
+current_stage: ship
+status: in_progress            # pending | in_progress | awaiting_approval | blocked | done
 waiting_on: null            # e.g. "product_owner (Priya): approve specs/list-notes/spec.md"
 review_iterations: 0
 
 stages:
-  intent:    { status: pending, agent: intent-agent,  artifact: specs/list-notes/intent.md, started: null, completed: null }
-  spec:      { status: pending, agent: spec-agent,    artifact: specs/list-notes/spec.md,   started: null, completed: null, approved_by: null }
-  plan:      { status: pending, agent: plan-agent,    artifact: specs/list-notes/plan.md,   started: null, completed: null, approved_by: null }
-  implement: { status: pending, agent: build-agent,   artifact: null,                   started: null, completed: null, tests: null }
-  review:    { status: pending, agent: review-agent,  artifact: specs/list-notes/review.md, started: null, completed: null, decision: null }
-  ship:      { status: pending, agent: release-agent, artifact: null,                   started: null, completed: null, confirmed_by: null }
+  intent:    { status: done, agent: intent-agent,  artifact: specs/list-notes/intent.md, started: 2026-10-09T05:00:12Z, completed: 2026-10-09T05:05:58Z}
+  spec:      { status: done, agent: spec-agent,    artifact: specs/list-notes/spec.md,   started: 2026-10-09T05:05:58Z, completed: 2026-10-09T05:30:32Z, approved_by: "AITechie, 2026-10-09" }
+  plan:      { status: done, agent: plan-agent,    artifact: specs/list-notes/plan.md,   started: 2026-10-09T05:16:11Z, completed: 2026-10-09T05:30:32Z, approved_by: "AITechie, 2026-10-09" }
+  implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-09T05:30:32Z, completed: 2026-10-09T17:45:58Z, tests: "vitest 463/463, playwright 67/67, ci exit 0" }
+  review:    { status: done, agent: review-agent,  artifact: specs/list-notes/review.md, started: 2026-10-09T17:45:58Z, completed: 2026-10-09T17:49:28Z, decision: approve}
+  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-09T17:49:28Z, completed: null, confirmed_by: "AITechie (pre-approved in conversation, 2026-10-09)" }
 
 open_questions: []          # questions relayed to humans and not yet answered
 
@@ -43,3 +43,21 @@ tracker:                    # Jira mode only (team.yaml tracker.mode: jira); ign
 
 events:                     # append-only; newest last
   - { at: 2026-10-04T08:20:09Z, stage: intent, actor: orchestrator, event: queued_from_charter, note: "product/charter.md approved by AITechie" }
+  - { at: 2026-10-09T05:00:12Z, stage: intent, actor: orchestrator, event: stage_started, note: "intent-agent dispatched (solo mode)" }
+  - { at: 2026-10-09T05:05:58Z, stage: intent, actor: orchestrator, event: intent_drafted, note: "specs/list-notes/intent.md" }
+  - { at: 2026-10-09T05:05:58Z, stage: spec, actor: orchestrator, event: stage_started, note: "spec-agent dispatched (solo: plan follows, one design gate)" }
+  - { at: 2026-10-09T05:07:36Z, stage: spec, actor: orchestrator, event: ship_preapproved, note: "AITechie in conversation: if review approves and CI is green, commit, push, open PR, merge and verify deploy without stopping; any red stops. Manual checks default to deferred-to-owner, never blocking ship." }
+  - { at: 2026-10-09T05:16:11Z, stage: spec, actor: orchestrator, event: spec_drafted, note: "specs/list-notes/spec.md (draft; solo mode: plan drafted next, one design gate)" }
+  - { at: 2026-10-09T05:16:11Z, stage: plan, actor: orchestrator, event: stage_started, note: "plan-agent dispatched on draft spec (solo mode)" }
+  - { at: 2026-10-09T05:27:03Z, stage: spec, actor: orchestrator, event: spec_ready, note: "spec.md already approved by owner; awaiting plan for combined gate" }
+  - { at: 2026-10-09T05:27:03Z, stage: plan, actor: orchestrator, event: awaiting_approval, note: "Owner (AITechie): approve specs/list-notes/spec.md and plan.md (spec done)" }
+  - { at: 2026-10-09T05:30:32Z, stage: spec, actor: orchestrator, event: approved, note: "spec.md approved by AITechie, 2026-10-09" }
+  - { at: 2026-10-09T05:30:32Z, stage: plan, actor: orchestrator, event: approved, note: "plan.md approved by AITechie, 2026-10-09" }
+  - { at: 2026-10-09T05:30:32Z, stage: implement, actor: orchestrator, event: stage_started, note: "build-agent dispatched" }
+  - { at: 2026-10-09T17:39:29Z, stage: implement, actor: orchestrator, event: agent_resumed, note: "build-agent resumed after usage limit; known red: create-note AC-10" }
+  - { at: 2026-10-09T17:41:04Z, stage: implement, actor: orchestrator, event: blocked, note: "create-note AC-10 expects no IndexedDB database after Enter in Title; list() on load creates the empty quicknotes db (owner decision 1). Not in Changes table. Steps 1-7 done, step 8 e2e specs not yet written." }
+  - { at: 2026-10-09T17:41:26Z, stage: implement, actor: orchestrator, event: unblocked, note: "orchestrator: approved spec R39 allows the empty db on load and its table already revised the identical create-note AC-39 db assertion to notes-count 0; AC-10 spec text never required no database. Apply the same revision to AC-10's e2e assertion, recorded as a plan deviation for review. Owner informed." }
+  - { at: 2026-10-09T17:45:58Z, stage: implement, actor: orchestrator, event: stage_done, note: "tests green: vitest 463/463, playwright 67/67, npm run ci exit 0 (Node 24.18.0); 3 deviations for review" }
+  - { at: 2026-10-09T17:45:58Z, stage: review, actor: orchestrator, event: stage_started, note: "review-agent dispatched" }
+  - { at: 2026-10-09T17:49:28Z, stage: review, actor: orchestrator, event: review_decision, note: "approve; owner to acknowledge deviations 1 (AC-10 e2e assertion) and 2 (skip link in flow); AC-52, AC-61 deferred to owner" }
+  - { at: 2026-10-09T17:49:28Z, stage: ship, actor: orchestrator, event: confirmed, note: "ship pre-approved by AITechie: commit, push, PR, merge after green CI" }

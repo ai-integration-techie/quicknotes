@@ -4,6 +4,7 @@
  */
 import {
   useEffect,
+  useLayoutEffect,
   useReducer,
   useRef,
   type ChangeEvent,
@@ -12,7 +13,7 @@ import {
   type RefObject,
 } from "react";
 import { flushSync } from "react-dom";
-import type { NoteRepository } from "../storage";
+import type { Note, NoteRepository } from "../storage";
 import {
   formReducer,
   initialFormState,
@@ -36,21 +37,39 @@ export interface NoteFormController {
   onSubmit(event: FormEvent<HTMLFormElement>): void;
 }
 
-export function useNoteForm(repository: NoteRepository): NoteFormController {
+export interface NoteFormWiring {
+  /** False while the note view shows (list-notes plan D2). */
+  readonly active: boolean;
+  /** Reports the note `create` resolved with (list-notes R14). */
+  onSaved(note: Note): void;
+}
+
+export function useNoteForm(
+  repository: NoteRepository,
+  { active, onSaved }: NoteFormWiring,
+): NoteFormController {
   const [state, dispatch] = useReducer(formReducer, initialFormState);
   const titleRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   // D4: set synchronously, so two triggers in one tick start one save.
   const savingRef = useRef(false);
+  // list-notes D2, R27: the form moves focus only while it is showing.
+  const activeRef = useRef(active);
+  const onSavedRef = useRef(onSaved);
+  useLayoutEffect(() => {
+    activeRef.current = active;
+    onSavedRef.current = onSaved;
+  });
 
   // R2: focus Title after mount (programmatic, so no-autofocus stays on).
   useEffect(() => {
-    titleRef.current?.focus();
+    if (activeRef.current) titleRef.current?.focus();
   }, []);
 
   useUnsavedTextWarning(state.title !== "" || state.body !== "");
 
   function focusField(field: Field | null): void {
+    if (!activeRef.current) return; // list-notes R27
     if (field === "title") titleRef.current?.focus();
     if (field === "body") bodyRef.current?.focus();
   }
@@ -78,9 +97,12 @@ export function useNoteForm(repository: NoteRepository): NoteFormController {
     savingRef.current = true;
     flushSync(() => dispatch({ type: "savingStarted" }));
     try {
-      await repository.create(input);
-      flushSync(() => dispatch({ type: "saved" }));
-      titleRef.current?.focus(); // R11
+      const note = await repository.create(input);
+      flushSync(() => {
+        dispatch({ type: "saved" });
+        onSavedRef.current(note); // list-notes R14
+      });
+      focusField("title"); // R11; not while a note is open (list-notes R27)
     } catch (error) {
       show(problemFromRejection(error)); // R18, R20, R21, D7
     } finally {

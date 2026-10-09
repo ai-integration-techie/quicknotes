@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
 import { gotoApp } from "./app";
+import {
+  BASE,
+  countStoredNotes,
+  NOTES_COPY,
+  persistenceCalls,
+  trackPersistenceCalls,
+} from "./notes";
 
 test.describe("privacy", () => {
   test("no web fonts; h1 uses system stack", async ({ page }) => {
@@ -30,26 +37,53 @@ test.describe("privacy", () => {
     );
   });
 
-  test("no storage or cookies on fresh load", async ({ browser }) => {
+  test("fresh load stores no note and no web storage, sets no cookies, calls no persistence API and requests only app files (AC-58; revised project-foundation AC-33)", async ({
+    browser,
+  }) => {
     const context = await browser.newContext();
     try {
       const page = await context.newPage();
+      const requests: { method: string; url: string }[] = [];
+      page.on("request", (request) =>
+        requests.push({ method: request.method(), url: request.url() }),
+      );
+      await trackPersistenceCalls(page);
+
       await gotoApp(page, { waitUntil: "networkidle" });
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page.getByText(NOTES_COPY.emptyPrimary)).toBeVisible();
 
       const storage = await page.evaluate(async () => ({
         local: localStorage.length,
         session: sessionStorage.length,
         cookie: document.cookie,
-        databases: (await indexedDB.databases()).length,
+        caches: await caches.keys(),
       }));
       expect(storage).toEqual({
         local: 0,
         session: 0,
         cookie: "",
-        databases: 0,
+        caches: [],
       });
       expect(await context.cookies()).toEqual([]);
+      expect(await persistenceCalls(page)).toEqual({
+        persisted: 0,
+        persist: 0,
+      });
+      // The empty database may now exist (owner decision); no note does.
+      expect(await countStoredNotes(page)).toBe(0);
+
+      const origin = new URL(page.url()).origin;
+      expect(requests.length).toBeGreaterThan(0);
+      const unexpected = requests.filter(({ method, url }) => {
+        const parsed = new URL(url);
+        return !(
+          method === "GET" &&
+          parsed.origin === origin &&
+          (parsed.pathname.startsWith(BASE) ||
+            parsed.pathname === "/favicon.ico")
+        );
+      });
+      expect(unexpected).toEqual([]);
     } finally {
       await context.close();
     }

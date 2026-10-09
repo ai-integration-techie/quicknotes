@@ -50,3 +50,35 @@ export function titleTooLong(n: number): string {
 export function noteTooLong(n: number): string {
   return `The note is too long. It has ${formatCount(n)} characters and the limit is 100,000.`;
 }
+
+// list-notes: the "Your notes" section and the note view.
+export const SKIP_TO_NOTES = "Skip to your notes";
+export const NOTES_HEADING = "Your notes";
+export const NOTES_LOADING = "Loading your notes…";
+export const NOTES_EMPTY_PRIMARY = "No notes yet";
+export const NOTES_EMPTY_SECONDARY = "Notes you save will show up here.";
+export const LIST_UNAVAILABLE =
+  "Your notes couldn't be loaded. This browser isn't letting QuickNotes read its storage right now, which can happen in private browsing. Reload the page to try again.";
+export const LIST_FAILED =
+  "Your notes couldn't be loaded because something went wrong. Reload the page to try again.";
+export const UNTITLED_NOTE = "Untitled note";
+export const PREVIEW_ELLIPSIS = "…";
+export const BACK_TO_NOTES = "Back to notes";
+export const NOTE_OPENING = "Opening note…";
+export const NOTE_NO_TEXT = "This note has no text.";
+export const NOT_FOUND_HEADING = "Note not found";
+export const NOT_FOUND =
+  "This note isn't on this device. It may have been deleted, or the link may be wrong.";
+export const OPEN_FAILED_HEADING = "This note couldn't be opened";
+export const OPEN_UNAVAILABLE =
+  "This browser isn't letting QuickNotes read its storage right now, which can happen in private browsing. Go back to your notes, or reload the page to try again.";
+export const OPEN_FAILED =
+  "Something went wrong while opening this note. Go back to your notes, or reload the page to try again.";
+
+/** The text before the relative time in the updated line (list-notes R8). */
+export const UPDATED_PREFIX = "Updated ";
+
+/** The updated line: "Updated " followed by the relative time (list-notes R8). */
+export function updatedLine(relative: string): string {
+  return `${UPDATED_PREFIX}${relative}`;
+}

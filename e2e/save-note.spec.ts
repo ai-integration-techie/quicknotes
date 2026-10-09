@@ -7,13 +7,14 @@ import {
   openForm,
   readStoredNotes,
 } from "./form";
+import { countStoredNotes } from "./notes";
 import { blockIndexedDb } from "./storageFaults";
 
 /**
  * create-note: saving in a real browser. Every test here stores (or tries
  * to store) a note, so each one uses the per-test `page` fixture, which
  * Playwright gives a fresh browser context (R28). Nothing leaks into
- * project-foundation AC-33's fresh load.
+ * list-notes AC-58's fresh load.
  */
 test.describe("save note", () => {
   test("IndexedDB open throwing SecurityError shows the unavailable copy and keeps the title (AC-34)", async ({
@@ -30,7 +31,7 @@ test.describe("save note", () => {
     await expect(form.title).toHaveValue("Keep me");
   });
 
-  test("typing without saving stores nothing and leaves the URL unchanged (AC-39)", async ({
+  test("typing without saving stores nothing and leaves the URL unchanged (AC-39; revised by list-notes AC-59)", async ({
     page,
   }) => {
     await gotoApp(page, { waitUntil: "networkidle" });
@@ -43,18 +44,17 @@ test.describe("save note", () => {
     await page.keyboard.type("draft");
     await page.waitForLoadState("networkidle");
 
-    const storage = await page.evaluate(async () => ({
+    const storage = await page.evaluate(() => ({
       local: localStorage.length,
       session: sessionStorage.length,
       cookie: document.cookie,
-      databases: await indexedDB.databases(),
     }));
     expect(storage).toEqual({
       local: 0,
       session: 0,
       cookie: "",
-      databases: [],
     });
+    expect(await countStoredNotes(page)).toBe(0);
     expect(page.url()).toBe(url);
   });
 

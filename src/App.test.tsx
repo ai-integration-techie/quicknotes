@@ -8,10 +8,15 @@ import {
   NEW_NOTE_HEADING,
   NOTE_LABEL,
   SAVE_BUTTON,
+  SKIP_TO_NOTES,
   TITLE_LABEL,
 } from "./copy";
-import { clickSave, paste, renderApp } from "./test/renderApp";
-import { createSpyRepository } from "./test/repositoryDoubles";
+import { clickSave, paste, renderApp, settle } from "./test/renderApp";
+import { notesSection } from "./test/renderNotes";
+import {
+  createSpyRepository,
+  createStubRepository,
+} from "./test/repositoryDoubles";
 
 function precedes(a: Node, b: Node): boolean {
   return (
@@ -20,8 +25,13 @@ function precedes(a: Node, b: Node): boolean {
 }
 
 describe("App shell", () => {
-  it("renders banner with the only h1 and the info text in main (AC-6)", () => {
-    render(<App repository={createSpyRepository()} />);
+  it("renders banner with the only h1 and the info text in main (AC-6)", async () => {
+    render(
+      <App
+        repository={createStubRepository({ list: () => Promise.resolve([]) })}
+      />,
+    );
+    await settle();
 
     const banner = screen.getByRole("banner");
     expect(
@@ -32,7 +42,11 @@ describe("App shell", () => {
     const main = screen.getByRole("main");
     expect(within(main).getByText(INFO_PRIMARY)).toBeInTheDocument();
     expect(within(main).getByText(INFO_SECONDARY)).toBeInTheDocument();
-    expect(within(main).queryByText("No notes yet")).toBeNull();
+    // list-notes AC-6 change: "No notes yet" is now the Your notes empty state, only.
+    expect(within(main).getAllByText("No notes yet")).toHaveLength(1);
+    expect(
+      within(notesSection()).getByText("No notes yet"),
+    ).toBeInTheDocument();
     expect(
       within(main).queryByText("Your notes will show up here."),
     ).toBeNull();
@@ -76,9 +90,17 @@ describe("App shell", () => {
 
     expect(screen.getAllByRole("textbox")).toHaveLength(2);
     expect(screen.getAllByRole("button")).toHaveLength(1);
-    for (const role of ["link", "searchbox", "checkbox"] as const) {
+    // list-notes AC-1 change: no link inside "New note"; page-wide, only
+    // the skip link (the list is still loading), and no searchbox or checkbox.
+    expect(within(section as HTMLElement).queryAllByRole("link")).toHaveLength(
+      0,
+    );
+    for (const role of ["searchbox", "checkbox"] as const) {
       expect(screen.queryAllByRole(role)).toHaveLength(0);
     }
+    expect(screen.getAllByRole("link").map((link) => link.textContent)).toEqual(
+      [SKIP_TO_NOTES],
+    );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(
       within(screen.getByRole("banner")).getByRole("heading", {

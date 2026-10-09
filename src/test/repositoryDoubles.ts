@@ -29,27 +29,39 @@ function unused(name: string): () => Promise<never> {
   return () => Promise.reject(new Error(`${name} must not be called`));
 }
 
+/** A promise that never settles. */
+function never<T>(): Promise<T> {
+  return new Promise<T>(() => {});
+}
+
+export interface StubOptions {
+  readonly create?: (input: NoteInput) => Promise<Note>;
+  readonly list?: () => Promise<Note[]>;
+  readonly get?: (id: string) => Promise<Note>;
+}
+
 /**
  * A repository whose every method is a spy. `create` resolves a note
- * unless `create` is given; the other methods reject if ever called.
+ * unless `create` is given. `list` never settles unless `list` is given
+ * (list-notes plan D13a), so the "Your notes" section stays loading. `get`
+ * rejects unless given; `update`, `delete` and `isPersisted` reject if
+ * ever called.
  */
-export function createStubRepository(
-  options: { create?: (input: NoteInput) => Promise<Note> } = {},
-): SpyRepository {
+export function createStubRepository(options: StubOptions = {}): SpyRepository {
   return {
     create: vi.fn(
       options.create ??
         ((input: NoteInput) => Promise.resolve(savedNote(input))),
     ),
-    get: vi.fn(unused("get")),
+    get: vi.fn(options.get ?? unused("get")),
     update: vi.fn(unused("update")),
     delete: vi.fn(unused("delete")),
-    list: vi.fn(unused("list")),
+    list: vi.fn(options.list ?? (() => never<Note[]>())),
     isPersisted: vi.fn(unused("isPersisted")),
   };
 }
 
-/** Every method a spy; `create` resolves a note (AC-37). */
+/** Every method a spy; `create` resolves a note (create-note AC-37; list-notes AC-53). */
 export function createSpyRepository(): SpyRepository {
   return createStubRepository();
 }

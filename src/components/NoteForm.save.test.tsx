@@ -136,25 +136,31 @@ describe("NoteForm saving", () => {
     expect(app.alert.textContent).toBe("Add a title or some text first.");
   });
 
-  it("rendering and typing call no repository method; a valid save calls only create, once (AC-37)", async () => {
-    const repository = createSpyRepository();
+  it("rendering and typing call no repository method; a valid save calls only create, once (create-note AC-37, revised by list-notes AC-53)", async () => {
+    const repository = createStubRepository({
+      list: () => Promise.resolve([]),
+    });
     const app = renderApp(repository);
-    const methods = [
+    await settle();
+    const others = [
       repository.create,
       repository.get,
       repository.update,
       repository.delete,
-      repository.list,
       repository.isPersisted,
     ];
 
+    expect(repository.list).toHaveBeenCalledTimes(1);
+    for (const method of others) expect(method).not.toHaveBeenCalled();
+
     typeInto(app.title, "Draft");
     typeInto(app.note, "Some text");
-    for (const method of methods) expect(method).not.toHaveBeenCalled();
+    expect(repository.list).toHaveBeenCalledTimes(1);
+    for (const method of others) expect(method).not.toHaveBeenCalled();
 
     await clickSave(app);
     expect(repository.create).toHaveBeenCalledTimes(1);
-    for (const method of methods.slice(1))
-      expect(method).not.toHaveBeenCalled();
+    expect(repository.list).toHaveBeenCalledTimes(1);
+    for (const method of others.slice(1)) expect(method).not.toHaveBeenCalled();
   });
 });
