@@ -9,12 +9,16 @@ export const APP_PATH = "./";
 
 type GotoOptions = Parameters<Page["goto"]>[1];
 
-/** Loads the app shell and returns the main navigation response. */
+/**
+ * Loads the app shell and returns the main navigation response. `hash`
+ * (for example `#note/<id>`) opens a route (list-notes plan D14).
+ */
 export async function gotoApp(
   page: Page,
   options?: GotoOptions,
+  hash = "",
 ): Promise<Response> {
-  const response = await page.goto(APP_PATH, options);
+  const response = await page.goto(APP_PATH + hash, options);
   if (!response) throw new Error(`No navigation response for ${APP_PATH}`);
   return response;
 }

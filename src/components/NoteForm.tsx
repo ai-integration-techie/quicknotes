@@ -1,20 +1,28 @@
 import { useId } from "react";
 import { NEW_NOTE_HEADING, NOTE_LABEL, TITLE_LABEL } from "../copy";
 import { useNoteForm } from "../noteForm/useNoteForm";
-import type { NoteRepository } from "../storage";
+import type { Note, NoteRepository } from "../storage";
 import FormMessages from "./FormMessages";
 import NoteField from "./NoteField";
 import SaveRow from "./SaveRow";
 
 interface NoteFormProps {
   readonly repository: NoteRepository;
+  /** False while the note view shows: the form then moves no focus (list-notes R27). */
+  readonly active: boolean;
+  /** Called with the note `create` resolved with (list-notes R14). */
+  onSaved(note: Note): void;
 }
 
 /** The "New note" section (create-note R1-R4, R34). */
-export default function NoteForm({ repository }: NoteFormProps) {
+export default function NoteForm({
+  repository,
+  active,
+  onSaved,
+}: NoteFormProps) {
   const headingId = useId();
   const { state, titleRef, bodyRef, onChange, onKeyDown, onSubmit } =
-    useNoteForm(repository);
+    useNoteForm(repository, { active, onSaved });
   const saving = state.phase === "saving";
 
   return (

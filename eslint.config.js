@@ -31,6 +31,13 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   {
+    // list-notes D10: Tailwind's reset removes list markers, and Safari then
+    // drops list semantics unless the <ul> has role="list". This is the
+    // narrowest option the rule offers (ul: list only), on this one file.
+    files: ["src/components/NoteList.tsx"],
+    rules: { "jsx-a11y/no-redundant-roles": ["error", { ul: ["list"] }] },
+  },
+  {
     files: ["*.{js,ts}", "tests/**/*.ts", "e2e/**/*.ts"],
     languageOptions: { globals: globals.node },
   },

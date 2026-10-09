@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { gotoApp } from "./app";
-import { COPY, databaseNames, formLocators, openForm } from "./form";
+import { COPY, formLocators, openForm } from "./form";
+import { countStoredNotes } from "./notes";
 
 /**
  * create-note: the form in a real browser. Each test uses the per-test
@@ -40,7 +41,7 @@ test.describe("create note form", () => {
     await expect(form.title).toHaveValue("a");
     await expect(form.status).toHaveText("");
     expect(page.url()).toBe(url);
-    expect(await databaseNames(page)).toEqual([]);
+    expect(await countStoredNotes(page)).toBe(0);
   });
 
   test("250 inserted characters are kept, the counter reads 250 of 200, no error shows (AC-28)", async ({

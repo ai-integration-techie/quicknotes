@@ -40,6 +40,41 @@ describe("copy", () => {
     expect("EMPTY_STATE_SECONDARY" in copy).toBe(false);
   });
 
+  it("every list-notes string matches the spec exactly", () => {
+    expect(copy.SKIP_TO_NOTES).toBe("Skip to your notes");
+    expect(copy.NOTES_HEADING).toBe("Your notes");
+    expect(copy.NOTES_LOADING).toBe("Loading your notes\u2026");
+    expect(copy.NOTES_EMPTY_PRIMARY).toBe("No notes yet");
+    expect(copy.NOTES_EMPTY_SECONDARY).toBe(
+      "Notes you save will show up here.",
+    );
+    expect(copy.LIST_UNAVAILABLE).toBe(
+      "Your notes couldn't be loaded. This browser isn't letting QuickNotes read its storage right now, which can happen in private browsing. Reload the page to try again.",
+    );
+    expect(copy.LIST_FAILED).toBe(
+      "Your notes couldn't be loaded because something went wrong. Reload the page to try again.",
+    );
+    expect(copy.UNTITLED_NOTE).toBe("Untitled note");
+    expect(copy.PREVIEW_ELLIPSIS).toBe("\u2026");
+    expect(copy.BACK_TO_NOTES).toBe("Back to notes");
+    expect(copy.NOTE_OPENING).toBe("Opening note\u2026");
+    expect(copy.NOTE_NO_TEXT).toBe("This note has no text.");
+    expect(copy.NOT_FOUND_HEADING).toBe("Note not found");
+    expect(copy.NOT_FOUND).toBe(
+      "This note isn't on this device. It may have been deleted, or the link may be wrong.",
+    );
+    expect(copy.OPEN_FAILED_HEADING).toBe("This note couldn't be opened");
+    expect(copy.OPEN_UNAVAILABLE).toBe(
+      "This browser isn't letting QuickNotes read its storage right now, which can happen in private browsing. Go back to your notes, or reload the page to try again.",
+    );
+    expect(copy.OPEN_FAILED).toBe(
+      "Something went wrong while opening this note. Go back to your notes, or reload the page to try again.",
+    );
+    expect(copy.UPDATED_PREFIX).toBe("Updated ");
+    expect(copy.updatedLine("just now")).toBe("Updated just now");
+    expect(copy.updatedLine("5 minutes ago")).toBe("Updated 5 minutes ago");
+  });
+
   it("formats the counter with en-US thousands separators", () => {
     expect(copy.counterText(180, 200)).toBe("180 of 200 characters");
     expect(copy.counterText(90000, 100000)).toBe(

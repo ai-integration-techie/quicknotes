@@ -11,7 +11,7 @@ slug: create-note
 mode: greenfield            # greenfield (came from a charter) | brownfield
 source: "product/charter.md"
 current_stage: ship
-status: in_progress            # pending | in_progress | awaiting_approval | blocked | done
+status: done            # pending | in_progress | awaiting_approval | blocked | done
 waiting_on: null            # e.g. "product_owner (Priya): approve specs/create-note/spec.md"
 review_iterations: 0
 
@@ -21,7 +21,7 @@ stages:
   plan:      { status: done, agent: plan-agent,    artifact: specs/create-note/plan.md,   started: 2026-10-07T14:46:55Z, completed: 2026-10-07T14:59:15Z, approved_by: "AITechie, 2026-10-07" }
   implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-07T14:59:15Z, completed: 2026-10-07T15:11:45Z, tests: "vitest 349/349, playwright 39/39, ci exit 0" }
   review:    { status: done, agent: review-agent,  artifact: specs/create-note/review.md, started: 2026-10-07T15:11:45Z, completed: 2026-10-07T15:16:42Z, decision: approve}
-  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-07T15:16:42Z, completed: null, confirmed_by: "AITechie (Release Manager), in conversation" }
+  ship:      { status: done, agent: release-agent, artifact: null,                   started: 2026-10-07T15:16:42Z, completed: 2026-10-09T04:45:21Z, confirmed_by: "AITechie (Release Manager), in conversation" }
 
 open_questions: []          # questions relayed to humans and not yet answered
 
@@ -62,3 +62,5 @@ events:                     # append-only; newest last
   - { at: 2026-10-07T15:16:42Z, stage: ship, actor: orchestrator, event: stage_started, note: "release prepared (confirmed: no)" }
   - { at: 2026-10-07T15:16:49Z, stage: ship, actor: orchestrator, event: awaiting_approval, note: "Release Manager (AITechie): confirm commit + push of feat/create-note" }
   - { at: 2026-10-07T15:17:20Z, stage: ship, actor: orchestrator, event: confirmed, note: "AITechie said yes: commit, push, PR (no merge)" }
+  - { at: 2026-10-07T15:22:41Z, stage: ship, actor: orchestrator, event: shipped, note: "c772f0b pushed to orgin/feat/create-note; PR https://github.com/ai-integration-techie/quicknotes/pull/5; CI green (push + PR)" }
+  - { at: 2026-10-09T04:45:21Z, stage: ship, actor: orchestrator, event: shipped, note: "PR 5 merged (151ecb7) by AITechie; Deploy run 37885205003 green; live form verified (2 textboxes, Save note, focus on load, only github.io requests)" }
