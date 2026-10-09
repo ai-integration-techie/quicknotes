@@ -59,7 +59,9 @@ test.describe("base path", () => {
     await expect(
       page.getByRole("heading", { level: 1, name: "QuickNotes" }),
     ).toBeVisible();
-    await expect(page.getByText("No notes yet", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Your notes are saved on this device", { exact: true }),
+    ).toBeVisible();
 
     expect(assets.some(({ path }) => path.endsWith(".js"))).toBe(true);
     expect(assets.some(({ path }) => path.endsWith(".css"))).toBe(true);

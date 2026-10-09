@@ -6,6 +6,7 @@ import {
   readPackageJson,
   readText,
   storageSourceFiles,
+  uiModules,
 } from "./repo";
 
 const SDK_PATTERNS: RegExp[] = [
@@ -143,5 +144,28 @@ describe("storage privacy", () => {
     CROSS_TAB_PATTERNS.forEach((pattern, index) => {
       expect(pattern.test(crossTab[index] ?? ""), pattern.source).toBe(true);
     });
+  });
+});
+
+/**
+ * create-note R31 (privacy scan half) and R39: UI modules use no network
+ * API and no browser storage of their own; saving goes through the
+ * repository only.
+ */
+describe("UI privacy", () => {
+  it("scans the UI modules found by R29 discovery", () => {
+    expect(uiModules()).toEqual(
+      expect.arrayContaining(["index.html", "src/App.tsx", "src/main.tsx"]),
+    );
+  });
+
+  it("no network or other storage APIs in UI source (create-note R31, R39)", () => {
+    const hits = uiModules().flatMap((file) => {
+      const text = readText(file);
+      return STORAGE_NETWORK_PATTERNS.filter((pattern) =>
+        pattern.test(text),
+      ).map((pattern) => `${file}: ${pattern.source}`);
+    });
+    expect(hits).toEqual([]);
   });
 });

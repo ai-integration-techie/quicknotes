@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/*
+ * create-note D5: a named variant for invalid fields, so their classes stay
+ * literal tokens (aria-invalid:border-zinc-900) the colour scan can read.
+ */
+@custom-variant aria-invalid (&[aria-invalid="true"]);
+
 @theme {
   --color-accent: #1d4ed8;
 

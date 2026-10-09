@@ -160,6 +160,11 @@ and pick the run back up with `/factory` afterwards.
 - **Change who gates what:** edit `raci` in `factory/team.yaml`. Removing a
   gate entirely is a process change — write it down in `CLAUDE.md` so it's
   deliberate.
+- **Solo mode:** when one person holds every role, set `mode: solo` in
+  `factory/team.yaml`. The spec and plan share one gate, one ship "yes"
+  covers merge after green CI, and agents apply `product/decisions.md`
+  (the owner's standing answers) instead of re-asking. See section 2a of
+  `.claude/commands/factory.md`.
 - **Run outside an interactive session:** the stage contracts are plain
   markdown, so the same agents can be driven from the Claude Agent SDK or
   CI; keep the human gates as required PR reviews on the artifact files.

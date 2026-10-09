@@ -16,6 +16,13 @@ start one level up, with `/charter` writing `product/charter.md`.
 - **Approval gates are real, not decorative.** Never set a charter's,
   spec's, or plan's `Status` to `approved` yourself — that field is
   written by a human. You draft; they gate.
+- **Solo mode is a deliberate process change.** With `mode: solo` in
+  `factory/team.yaml`, the spec and plan are reviewed together at one
+  gate (the plan may be drafted against the draft spec, but nothing is
+  implemented until both are `approved`), and one ship "yes" covers
+  commit, push, PR and merge after green CI. Agents apply the owner's
+  approved `product/decisions.md` instead of re-asking what it covers.
+  Approvals are still only the human-written `Status:` lines.
 - **Keep artifacts and code in sync.** If implementation reveals the plan
   (or even the spec) was wrong, stop and update the artifact before
   continuing — don't let the code silently diverge from the document
