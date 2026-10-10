@@ -123,11 +123,15 @@ describe("Note view: opening", () => {
     },
   );
 
-  it("the view has no control other than Back to notes (AC-27)", async () => {
+  it("the view has no control other than Back to notes, Edit and Delete (list-notes AC-27, revised by edit-delete-note AC-1)", async () => {
     await openFromList(stubWith([A, B]), "Shopping");
     const main = screen.getByRole("main");
     expect(within(main).queryAllByRole("textbox")).toHaveLength(0);
-    expect(within(main).queryAllByRole("button")).toHaveLength(0);
+    expect(
+      within(main)
+        .queryAllByRole("button")
+        .map((button) => button.textContent),
+    ).toEqual(["Edit", "Delete"]);
     const visible = [...main.querySelectorAll("[contenteditable]")].filter(
       (element) => !element.closest("[hidden]"),
     );

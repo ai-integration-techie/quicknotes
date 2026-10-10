@@ -14,6 +14,22 @@ import {
 } from "../copy";
 import type { Field, FieldErrors, SaveProblem } from "./formState";
 
+/** The failure copy a form shows (edit-delete-note plan D4). */
+export interface FailureCopy {
+  readonly unavailable: string;
+  readonly quota: string;
+  readonly generic: string;
+  /** For `kind` "not-found"; the generic copy when absent. */
+  readonly notFound?: string;
+}
+
+/** The "New note" form's copy (create-note R20). */
+export const CREATE_FAILURE_COPY: FailureCopy = Object.freeze({
+  unavailable: SAVE_FAILED_UNAVAILABLE,
+  quota: SAVE_FAILED_QUOTA,
+  generic: SAVE_FAILED_GENERIC,
+});
+
 function failure(text: string): SaveProblem {
   return { fieldErrors: {}, message: { kind: "failure", text } };
 }
@@ -30,13 +46,16 @@ function tooLongCount(issue: ValidationIssue): [Field, number] | null {
 }
 
 /** R18 / D7: map a validation rejection exactly like the pre-check. */
-function fromValidation(issues: readonly ValidationIssue[]): SaveProblem {
+function fromValidation(
+  issues: readonly ValidationIssue[],
+  generic: string,
+): SaveProblem {
   if (issues.length === 1 && issues[0] && isEmptyIssue(issues[0])) {
     return { fieldErrors: {}, message: { kind: "empty" } };
   }
   const counts = issues.map(tooLongCount);
   if (issues.length === 0 || counts.some((entry) => entry === null)) {
-    return failure(SAVE_FAILED_GENERIC);
+    return failure(generic);
   }
   const fieldErrors: FieldErrors = Object.fromEntries(
     counts as [Field, number][],
@@ -44,17 +63,24 @@ function fromValidation(issues: readonly ValidationIssue[]): SaveProblem {
   return { fieldErrors, message: null };
 }
 
-/** R20: the problem a rejected `create` shows. */
-export function problemFromRejection(error: unknown): SaveProblem {
-  if (!(error instanceof NoteStorageError)) return failure(SAVE_FAILED_GENERIC);
-  if (error instanceof ValidationError) return fromValidation(error.issues);
+/** R20: the problem a rejected `create` (or, with its copy, `update`) shows. */
+export function problemFromRejection(
+  error: unknown,
+  copy: FailureCopy = CREATE_FAILURE_COPY,
+): SaveProblem {
+  if (!(error instanceof NoteStorageError)) return failure(copy.generic);
+  if (error instanceof ValidationError) {
+    return fromValidation(error.issues, copy.generic);
+  }
   switch (error.kind) {
     case "unavailable":
-      return failure(SAVE_FAILED_UNAVAILABLE);
+      return failure(copy.unavailable);
     case "quota-exceeded":
-      return failure(SAVE_FAILED_QUOTA);
+      return failure(copy.quota);
+    case "not-found":
+      return failure(copy.notFound ?? copy.generic);
     default:
-      return failure(SAVE_FAILED_GENERIC);
+      return failure(copy.generic);
   }
 }
 

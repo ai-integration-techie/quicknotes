@@ -194,7 +194,7 @@ test.describe("notes layout", () => {
     expect(await clippedText(page)).toEqual([]);
   });
 
-  test("no animations or transitions with notes, hover and the note view; links show the accent outline, unclipped (AC-48)", async ({
+  test("no animations or transitions with notes, hover and the note view; links show the accent outline, unclipped (AC-48, revised by edit-delete-note)", async ({
     page,
   }) => {
     await seeded(page);
@@ -228,8 +228,15 @@ test.describe("notes layout", () => {
       page.getByRole("heading", { level: 2, name: "Normal" }),
     ).toBeFocused();
     expect(await animatedElements(page)).toEqual([]);
-    await page.keyboard.press("Shift+Tab");
-    await expectAccentOutline(backLink(page));
+    // edit-delete-note R1: Delete and Edit sit between the link and the article.
+    for (const control of [
+      page.getByRole("button", { name: "Delete", exact: true }),
+      page.getByRole("button", { name: "Edit", exact: true }),
+      backLink(page),
+    ]) {
+      await page.keyboard.press("Shift+Tab");
+      await expectAccentOutline(control);
+    }
   });
 
   test("skip link: hidden until Shift+Tab from Title, 44px, accent outline, Enter then Tab reaches the note (AC-42)", async ({

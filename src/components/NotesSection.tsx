@@ -19,6 +19,8 @@ export interface NotesSectionHandle {
 
 interface NotesSectionProps {
   readonly state: ListState;
+  /** "Note deleted." or the "Already deleted" copy (edit-delete-note R35). */
+  readonly status?: string | null;
   readonly ref?: Ref<NotesSectionHandle>;
 }
 
@@ -53,9 +55,14 @@ function Body({
 
 /**
  * "Your notes" (list-notes R1, R4, R10-R13, R29). The alert region exists,
- * empty, from the first render and is used only for a load failure.
+ * empty, from the first render and is used only for a load failure. The
+ * status region (edit-delete-note R35) is used only after a delete.
  */
-export default function NotesSection({ state, ref }: NotesSectionProps) {
+export default function NotesSection({
+  state,
+  status = null,
+  ref,
+}: NotesSectionProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const listRef = useRef<NoteListHandle>(null);
 
@@ -82,6 +89,9 @@ export default function NotesSection({ state, ref }: NotesSectionProps) {
       >
         {NOTES_HEADING}
       </h2>
+      <div role="status" className="text-base text-zinc-900 not-empty:mt-3">
+        {status}
+      </div>
       <div role="alert" className="text-base text-zinc-900 not-empty:mt-3">
         {failureText(state)}
       </div>

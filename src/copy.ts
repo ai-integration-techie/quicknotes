@@ -82,3 +82,38 @@ export const UPDATED_PREFIX = "Updated ";
 export function updatedLine(relative: string): string {
   return `${UPDATED_PREFIX}${relative}`;
 }
+
+// edit-delete-note: editing and deleting an opened note.
+export const EDIT_BUTTON = "Edit";
+export const DELETE_BUTTON = "Delete";
+export const EDIT_HEADING = "Edit note";
+export const SAVE_CHANGES = "Save changes";
+export const CANCEL_BUTTON = "Cancel";
+export const CHANGES_SAVED = "Changes saved.";
+export const NO_CHANGES = "No changes to save.";
+export const CHANGES_UNAVAILABLE =
+  "Your changes weren't saved. This browser isn't letting QuickNotes store notes right now, which can happen in private browsing. Your text is still here.";
+export const CHANGES_FULL =
+  "Your changes weren't saved because there's no storage space left for QuickNotes on this device. Free up some space, then try again. Your text is still here.";
+export const CHANGES_FAILED =
+  "Your changes weren't saved because something went wrong. Your text is still here, so you can try again.";
+export const CHANGES_NOT_FOUND =
+  "Your changes weren't saved because this note has been deleted, maybe in another tab. Your text is still here, so you can copy it.";
+export const DISCARD_HEADING = "Discard your changes?";
+export const DISCARD_TEXT =
+  "Your changes to this note haven't been saved. Discarding them can't be undone.";
+export const KEEP_EDITING = "Keep editing";
+export const DISCARD_CHANGES = "Discard changes";
+export const DELETE_HEADING = "Delete this note?";
+export const DELETE_TEXT =
+  "It will be removed from this device for good. This can't be undone.";
+export const KEEP_NOTE = "Keep note";
+export const DELETE_NOTE = "Delete note";
+export const DELETING = "Deleting…";
+export const NOTE_DELETED = "Note deleted.";
+export const ALREADY_DELETED =
+  "That note had already been deleted, maybe in another tab.";
+export const DELETE_UNAVAILABLE =
+  "The note wasn't deleted. This browser isn't letting QuickNotes change its storage right now, which can happen in private browsing. The note is still here.";
+export const DELETE_FAILED =
+  "The note wasn't deleted because something went wrong. It's still here, so you can try again.";

@@ -2,17 +2,39 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { StorageUnavailableError } from "./storage";
-import { clickSave, paste, renderApp, settle } from "./test/renderApp";
+import {
+  clickSave,
+  paste,
+  renderApp,
+  settle,
+  typeInto,
+} from "./test/renderApp";
+import {
+  button,
+  cancel,
+  click,
+  deleteOpenedNote,
+  discardChanges,
+  historyBack,
+  keepEditing,
+  saveChanges,
+  titleField,
+  waitForHashChange,
+} from "./test/renderEdit";
 import { activate, backLink, makeNote, noteLink } from "./test/renderNotes";
 import { createStubRepository } from "./test/repositoryDoubles";
 
 describe("storage use", () => {
-  it("the UI calls list once, create per save, get per open, and never update, delete or isPersisted (AC-53)", async () => {
+  it("the UI calls list once, create per save, get per open, update only for a real change, delete only when confirmed, never isPersisted (edit-delete-note AC-53; revises list-notes AC-53)", async () => {
     const A = makeNote(1, { title: "A" });
+    const B = makeNote(3, { title: "B" });
     const repository = createStubRepository({
-      list: () => Promise.resolve([A]),
-      get: () => Promise.resolve(A),
+      list: () => Promise.resolve([A, B]),
+      get: (id) => Promise.resolve(id === A.id ? A : B),
       create: (input) => Promise.resolve(makeNote(2, { ...input })),
+      update: (_id, input) =>
+        Promise.resolve({ ...A, ...input, updatedAt: A.updatedAt + 1 }),
+      delete: () => Promise.resolve(),
     });
     const counts = () => ({
       create: repository.create.mock.calls.length,
@@ -42,6 +64,31 @@ describe("storage use", () => {
 
     await activate(backLink());
     expect(counts()).toEqual({ ...none, list: 1, create: 1, get: 1 });
+
+    // edit-delete-note AC-53: the edit and delete flow on A.
+    await activate(noteLink("A"));
+    const base = { ...none, list: 1, create: 1, get: 2 };
+    await click(button("Edit"));
+    await saveChanges(); // no change: no update
+    expect(counts()).toEqual(base);
+    await click(button("Edit"));
+    typeInto(titleField(), "!");
+    await saveChanges();
+    expect(counts()).toEqual({ ...base, update: 1 });
+    await click(button("Edit"));
+    typeInto(titleField(), "?");
+    await cancel();
+    await discardChanges();
+    await click(button("Edit"));
+    typeInto(titleField(), "?");
+    await historyBack();
+    await keepEditing();
+    await waitForHashChange();
+    await cancel();
+    await discardChanges();
+    expect(counts()).toEqual({ ...base, update: 1 });
+    await deleteOpenedNote();
+    expect(counts()).toEqual({ ...base, update: 1, delete: 1 });
   });
 
   it("no console call contains note text across load, open and failures (AC-56)", async () => {

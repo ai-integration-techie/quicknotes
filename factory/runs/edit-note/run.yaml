@@ -11,7 +11,7 @@ slug: edit-note
 mode: greenfield            # greenfield (came from a charter) | brownfield
 source: "product/charter.md"
 current_stage: intent
-status: pending            # pending | in_progress | awaiting_approval | blocked | done
+status: superseded            # pending | in_progress | awaiting_approval | blocked | done
 waiting_on: null            # e.g. "product_owner (Priya): approve specs/edit-note/spec.md"
 review_iterations: 0
 
@@ -43,3 +43,4 @@ tracker:                    # Jira mode only (team.yaml tracker.mode: jira); ign
 
 events:                     # append-only; newest last
   - { at: 2026-10-04T08:20:09Z, stage: intent, actor: orchestrator, event: queued_from_charter, note: "product/charter.md approved by AITechie" }
+  - { at: 2026-10-09T05:09:51Z, stage: intent, actor: orchestrator, event: superseded, note: "merged into edit-delete-note by charter Revision 2026-10-09 (approved by AITechie, 2026-10-09)" }

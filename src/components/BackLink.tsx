@@ -4,14 +4,17 @@ import { appUrl } from "../routing/route";
 
 interface BackLinkProps {
   onBack(event: MouseEvent<HTMLAnchorElement>): void;
+  /** While an edit saves (edit-delete-note R12); activations are then ignored by `onBack`. */
+  readonly ariaDisabled?: boolean;
 }
 
 /** "Back to notes" (list-notes R24, plan D8). Its href is the app's own URL. */
-export default function BackLink({ onBack }: BackLinkProps) {
+export default function BackLink({ onBack, ariaDisabled }: BackLinkProps) {
   return (
     <a
       href={appUrl(window.location)}
       onClick={onBack}
+      aria-disabled={ariaDisabled ? "true" : undefined}
       className="inline-flex min-h-11 items-center gap-1 text-base text-accent underline"
     >
       {/* The "←" is drawn, not typed: axe can't rate a lone glyph's contrast (AC-44). */}

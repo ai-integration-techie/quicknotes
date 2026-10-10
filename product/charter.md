@@ -53,11 +53,16 @@ Ordered by dependency. Each slug runs its own
 - `note-storage`: Define the note model (id, title, body, timestamps) and an IndexedDB repository with create, read, update, delete and list.
 - `create-note`: Let the user create a note with a title and plain-text body, saved to local storage.
 - `list-notes`: Show all notes, most recently updated first, and open a selected note.
-- `edit-note`: Let the user edit a note's title and body, saving changes to local storage.
-- `delete-note`: Let the user delete a note, with a confirmation or undo.
+- `edit-delete-note`: Let the user edit an open note's title and body and delete a note (with a confirmation or undo), saving changes to local storage.
 - `search-notes`: Filter notes by a query over title and body as the user types, under 100 ms over 1,000 notes.
 - `theme-mode`: Light and dark mode that follows the system preference, with a manual toggle that is remembered.
 - `pwa-offline`: Web app manifest and service worker so the app installs, works offline and is ready to type in under 1 second.
+
+**Revision 2026-10-09:** at the owner's request, the former `edit-note`
+and `delete-note` slugs are merged into one slug, `edit-delete-note`, in
+the same position (after `list-notes`, before `search-notes`). This saves
+a full delivery cycle. There is no scope change: v1 still covers editing
+and deleting notes exactly as before.
 
 ## Tech stack & architecture
 - **Frontend:** React + Vite + TypeScript, as a progressive web app (PWA).
@@ -98,4 +103,5 @@ Ordered by dependency. Each slug runs its own
 
 ## Approval
 <!-- A charter is not approved until a human signs off here. -->
-- Approved by: AITechie , 10/02/2026
+- Previous revision (before Revision 2026-10-09), approved by: AITechie , 10/02/2026
+- Approved by:  Approved by: AITechie, 2026-10-09
