@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { gotoApp } from "./app";
+import { clippingReasons } from "./focusGuard";
 import { NOTES_COPY, seedId, seedNotes } from "./notes";
 import {
   animatedElements,
@@ -97,6 +98,9 @@ test.describe("search layout", () => {
     await page.keyboard.type("a");
     await page.keyboard.press("Tab");
     await expectAccentOutline(clearSearch(page));
+    // focus-outline-guard R2: both outlines unclipped (search-notes R21).
+    expect(await clippingReasons(field)).toEqual([]);
+    expect(await clippingReasons(clearSearch(page))).toEqual([]);
     for (const control of [field, clearSearch(page)]) {
       const box = await control.boundingBox();
       expect(box!.height).toBeGreaterThanOrEqual(44);

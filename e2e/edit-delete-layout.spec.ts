@@ -10,6 +10,7 @@ import {
   startEdit,
   TEXT_SPACING_CSS,
 } from "./editDelete";
+import { clippingReasons } from "./focusGuard";
 import { seedId } from "./notes";
 
 const VIEWPORTS = [
@@ -207,8 +208,16 @@ test.describe("edit and delete layout", () => {
             : view === "delete dialog"
               ? [EDIT_COPY.keepNote, EDIT_COPY.deleteNote]
               : [EDIT_COPY.keepEditing, EDIT_COPY.discardChanges];
-      for (const name of names)
+      for (const name of names) {
         await expectAccentOutline(page, btn(page, name));
+        // focus-outline-guard R2/R3: unclipped (R36). Dialog buttons skip the
+        // overflow check only, because the dialog box may scroll
+        // (focus-outline-guard R3, edit-delete-note AC-49).
+        const options = view.endsWith("dialog") ? { overflow: false } : {};
+        expect(await clippingReasons(btn(page, name), options), name).toEqual(
+          [],
+        );
+      }
     });
   });
 });
