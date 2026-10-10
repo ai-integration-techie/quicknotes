@@ -1,0 +1,44 @@
+# SpecFabric run ledger — one per feature slug, at factory/runs/focus-outline-guard/run.yaml.
+# Written only by the /factory orchestrator (and appended to by manual
+# stage commands). Humans read it; humans approve in the artifacts
+# themselves (Status: approved), not here.
+#
+# Stage status: pending -> in_progress -> awaiting_approval -> approved -> done
+#               (or blocked, with a reason). Non-gated stages skip
+#               awaiting_approval/approved and go straight to done.
+
+slug: focus-outline-guard
+mode: brownfield
+source: "search-notes build note B2 (owner said yes for AC-48, 2026-10-10)"
+current_stage: ship
+status: in_progress
+waiting_on: null
+review_iterations: 0
+
+stages:
+  intent:    { status: done, agent: intent-agent,  artifact: specs/focus-outline-guard/intent.md, started: 2026-10-10T19:48:09Z, completed: 2026-10-10T19:49:33Z}
+  spec:      { status: done, agent: spec-agent,    artifact: specs/focus-outline-guard/spec.md,   started: 2026-10-10T19:49:33Z, completed: 2026-10-10T19:54:46Z, approved_by: "AITechie, 2026-10-10" }
+  plan:      { status: done, agent: plan-agent,    artifact: specs/focus-outline-guard/plan.md,   started: 2026-10-10T19:51:42Z, completed: 2026-10-10T19:54:46Z, approved_by: "AITechie, 2026-10-10" }
+  implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-10T19:54:46Z, completed: 2026-10-10T19:57:57Z, tests: "vitest 611/611, playwright 124/124, CI twice" }
+  review:    { status: done, agent: review-agent,  artifact: specs/focus-outline-guard/review.md, started: 2026-10-10T19:57:57Z, completed: 2026-10-10T19:59:54Z, decision: approve }
+  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-10T19:59:54Z, completed: null, confirmed_by: null }
+
+open_questions: []
+
+events:
+  - { at: 2026-10-10T19:48:09Z, stage: intent, actor: orchestrator, event: run_created, note: "owner said yes: tighten list-notes AC-48 focus-outline guard to also catch paint containment (content-visibility / contain: paint) on note-link ancestors" }
+  - { at: 2026-10-10T19:49:01Z, stage: intent, actor: intent-agent, event: needs_input, note: "intent drafted; 1 open question (dialog buttons scope)" }
+  - { at: 2026-10-10T19:49:05Z, stage: ship, actor: AITechie, event: ship_preapproved, note: "owner said \"pre-approve\" in conversation: commit, push, PR, merge after green CI" }
+  - { at: 2026-10-10T19:49:33Z, stage: intent, actor: AITechie, event: answered, note: "A: dialog buttons get content-visibility/contain checks only; dialog box overflow exempt, recorded in spec" }
+  - { at: 2026-10-10T19:49:33Z, stage: spec, actor: orchestrator, event: dispatched, note: "spec-agent, then plan-agent (solo joint gate)" }
+  - { at: 2026-10-10T19:51:42Z, stage: spec, actor: spec-agent, event: drafted, note: "R1-R7, AC-1..12; 3-row changes table; open Q for approver: dialog buttons no overflow check (box and backdrop both scroll)" }
+  - { at: 2026-10-10T19:51:42Z, stage: plan, actor: orchestrator, event: dispatched, note: "plan-agent on draft spec (solo joint gate)" }
+  - { at: 2026-10-10T19:52:52Z, stage: plan, actor: plan-agent, event: drafted, note: "e2e/focusGuard.ts helper + e2e/focus-guard.spec.ts self-checks; revise notes-layout, edit-delete-layout, search-layout" }
+  - { at: 2026-10-10T19:52:52Z, stage: plan, actor: orchestrator, event: awaiting_approval, note: "Owner (AITechie): approve specs/focus-outline-guard/spec.md and plan.md" }
+  - { at: 2026-10-10T19:54:46Z, stage: spec, actor: AITechie, event: approved, note: "AITechie, 2026-10-10" }
+  - { at: 2026-10-10T19:54:46Z, stage: plan, actor: AITechie, event: approved, note: "AITechie, 2026-10-10" }
+  - { at: 2026-10-10T19:54:46Z, stage: implement, actor: orchestrator, event: dispatched, note: "build-agent" }
+  - { at: 2026-10-10T19:57:57Z, stage: implement, actor: build-agent, event: done, note: "e2e only (5 files); guard passes on shipped app; CI twice: 611/611, 124/124" }
+  - { at: 2026-10-10T19:57:57Z, stage: review, actor: orchestrator, event: dispatched, note: "review-agent" }
+  - { at: 2026-10-10T19:59:54Z, stage: review, actor: review-agent, event: approve, note: "12/12 ACs; strictly stronger; no src changes. Unrelated flake seen once: ConfirmDialog.test.tsx AC-31 (follow-up)." }
+  - { at: 2026-10-10T19:59:54Z, stage: ship, actor: orchestrator, event: started, note: "under owner pre-approval" }

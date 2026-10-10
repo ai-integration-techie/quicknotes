@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { gotoApp } from "./app";
+import { clippingReasons } from "./focusGuard";
 import { formLocators, openForm } from "./form";
 import {
   backLink,
@@ -202,18 +203,8 @@ test.describe("notes layout", () => {
     await noteLink(page, "Normal").hover();
     expect(await animatedElements(page)).toEqual([]);
 
-    const clippingAncestors = await noteLink(page, "Normal").evaluate(
-      (link) => {
-        const found: string[] = [];
-        for (let el = link.parentElement; el; el = el.parentElement) {
-          const style = getComputedStyle(el);
-          if (style.overflowX !== "visible" || style.overflowY !== "visible")
-            found.push(el.tagName);
-        }
-        return found;
-      },
-    );
-    expect(clippingAncestors).toEqual([]);
+    // focus-outline-guard R2: no ancestor overflow and no paint containment.
+    expect(await clippingReasons(noteLink(page, "Normal"))).toEqual([]);
 
     await formLocators(page).title.focus();
     const target = noteLink(page, "Normal");
@@ -237,6 +228,8 @@ test.describe("notes layout", () => {
       await page.keyboard.press("Shift+Tab");
       await expectAccentOutline(control);
     }
+    // focus-outline-guard R2: "Back to notes" is unclipped too (list-notes R30).
+    expect(await clippingReasons(backLink(page))).toEqual([]);
   });
 
   test("skip link: hidden until Shift+Tab from Title, 44px, accent outline, Enter then Tab reaches Search notes, then the note (AC-42, revised by search-notes AC-23)", async ({
