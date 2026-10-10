@@ -42,11 +42,13 @@ export interface NoteFormWiring {
   readonly active: boolean;
   /** Reports the note `create` resolved with (list-notes R14). */
   onSaved(note: Note): void;
+  /** A save attempt started (edit-delete-note R35). */
+  onAttempt?(): void;
 }
 
 export function useNoteForm(
   repository: NoteRepository,
-  { active, onSaved }: NoteFormWiring,
+  { active, onSaved, onAttempt }: NoteFormWiring,
 ): NoteFormController {
   const [state, dispatch] = useReducer(formReducer, initialFormState);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -56,9 +58,11 @@ export function useNoteForm(
   // list-notes D2, R27: the form moves focus only while it is showing.
   const activeRef = useRef(active);
   const onSavedRef = useRef(onSaved);
+  const onAttemptRef = useRef(onAttempt);
   useLayoutEffect(() => {
     activeRef.current = active;
     onSavedRef.current = onSaved;
+    onAttemptRef.current = onAttempt;
   });
 
   // R2: focus Title after mount (programmatic, so no-autofocus stays on).
@@ -84,6 +88,7 @@ export function useNoteForm(
     if (savingRef.current) return; // R10
     // R22, D3a: clear every message in its own commit before the outcome.
     flushSync(() => dispatch({ type: "attemptStarted" }));
+    onAttemptRef.current?.(); // edit-delete-note R35
     // R5, R9: the fields' current values, unchanged, as exactly two keys.
     const input = {
       title: titleRef.current?.value ?? "",

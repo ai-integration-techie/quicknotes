@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  CHANGES_FAILED,
+  CHANGES_FULL,
+  CHANGES_NOT_FOUND,
+  CHANGES_UNAVAILABLE,
   SAVE_FAILED_GENERIC,
   SAVE_FAILED_QUOTA,
   SAVE_FAILED_UNAVAILABLE,
@@ -105,5 +109,54 @@ describe("focusTargetFor", () => {
 
   it("leaves focus alone for storage failures", () => {
     expect(focusTargetFor(generic as never)).toBeNull();
+  });
+});
+
+describe("problemFromRejection with the edit copy (edit-delete-note D4)", () => {
+  const edit = {
+    unavailable: CHANGES_UNAVAILABLE,
+    quota: CHANGES_FULL,
+    generic: CHANGES_FAILED,
+    notFound: CHANGES_NOT_FOUND,
+  };
+  const failure = (text: string) => ({
+    fieldErrors: {},
+    message: { kind: "failure", text },
+  });
+
+  it("edit copy table maps not-found and generic (AC-16)", () => {
+    expect(problemFromRejection(new StorageUnavailableError(), edit)).toEqual(
+      failure(CHANGES_UNAVAILABLE),
+    );
+    expect(problemFromRejection(new QuotaExceededError(), edit)).toEqual(
+      failure(CHANGES_FULL),
+    );
+    expect(problemFromRejection(new NotFoundError(), edit)).toEqual(
+      failure(CHANGES_NOT_FOUND),
+    );
+    expect(problemFromRejection(new Error("boom"), edit)).toEqual(
+      failure(CHANGES_FAILED),
+    );
+    expect(problemFromRejection("boom", edit)).toEqual(failure(CHANGES_FAILED));
+    expect(
+      problemFromRejection(
+        new ValidationError([{ field: "id", rule: "not-a-string" }]),
+        edit,
+      ),
+    ).toEqual(failure(CHANGES_FAILED));
+    expect(
+      problemFromRejection(
+        new ValidationError([{ field: "note", rule: "empty" }]),
+        edit,
+      ),
+    ).toEqual({ fieldErrors: {}, message: { kind: "empty" } });
+    expect(
+      problemFromRejection(
+        new ValidationError([
+          { field: "title", rule: "too-long", limit: 200, actual: 250 },
+        ]),
+        edit,
+      ),
+    ).toEqual({ fieldErrors: { title: 250 }, message: null });
   });
 });

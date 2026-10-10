@@ -93,4 +93,48 @@ describe("copy", () => {
       "The note is too long. It has 100,001 characters and the limit is 100,000.",
     );
   });
+  it("every edit-delete-note string matches the spec exactly", () => {
+    expect(copy.EDIT_BUTTON).toBe("Edit");
+    expect(copy.DELETE_BUTTON).toBe("Delete");
+    expect(copy.EDIT_HEADING).toBe("Edit note");
+    expect(copy.SAVE_CHANGES).toBe("Save changes");
+    expect(copy.CANCEL_BUTTON).toBe("Cancel");
+    expect(copy.CHANGES_SAVED).toBe("Changes saved.");
+    expect(copy.NO_CHANGES).toBe("No changes to save.");
+    expect(copy.CHANGES_UNAVAILABLE).toBe(
+      "Your changes weren't saved. This browser isn't letting QuickNotes store notes right now, which can happen in private browsing. Your text is still here.",
+    );
+    expect(copy.CHANGES_FULL).toBe(
+      "Your changes weren't saved because there's no storage space left for QuickNotes on this device. Free up some space, then try again. Your text is still here.",
+    );
+    expect(copy.CHANGES_FAILED).toBe(
+      "Your changes weren't saved because something went wrong. Your text is still here, so you can try again.",
+    );
+    expect(copy.CHANGES_NOT_FOUND).toBe(
+      "Your changes weren't saved because this note has been deleted, maybe in another tab. Your text is still here, so you can copy it.",
+    );
+    expect(copy.DISCARD_HEADING).toBe("Discard your changes?");
+    expect(copy.DISCARD_TEXT).toBe(
+      "Your changes to this note haven't been saved. Discarding them can't be undone.",
+    );
+    expect(copy.KEEP_EDITING).toBe("Keep editing");
+    expect(copy.DISCARD_CHANGES).toBe("Discard changes");
+    expect(copy.DELETE_HEADING).toBe("Delete this note?");
+    expect(copy.DELETE_TEXT).toBe(
+      "It will be removed from this device for good. This can't be undone.",
+    );
+    expect(copy.KEEP_NOTE).toBe("Keep note");
+    expect(copy.DELETE_NOTE).toBe("Delete note");
+    expect(copy.DELETING).toBe("Deleting…");
+    expect(copy.NOTE_DELETED).toBe("Note deleted.");
+    expect(copy.ALREADY_DELETED).toBe(
+      "That note had already been deleted, maybe in another tab.",
+    );
+    expect(copy.DELETE_UNAVAILABLE).toBe(
+      "The note wasn't deleted. This browser isn't letting QuickNotes change its storage right now, which can happen in private browsing. The note is still here.",
+    );
+    expect(copy.DELETE_FAILED).toBe(
+      "The note wasn't deleted because something went wrong. It's still here, so you can try again.",
+    );
+  });
 });

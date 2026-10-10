@@ -51,13 +51,12 @@ function rejecting(value: unknown) {
   return createStubRepository({ list: () => Promise.reject(value) });
 }
 
-/** Elements inside "Your notes" that are live regions. */
+/**
+ * Elements inside "Your notes" that are live regions, except the status
+ * region, which edit-delete-note R35 / AC-38 use after a delete.
+ */
 function liveRegions(): Element[] {
-  return [
-    ...notesSection().querySelectorAll(
-      '[role="status"], [role="alert"], [aria-live]',
-    ),
-  ];
+  return [...notesSection().querySelectorAll('[role="alert"], [aria-live]')];
 }
 
 describe("Your notes: first load", () => {
@@ -238,12 +237,16 @@ describe("Your notes: states", () => {
     },
   );
 
-  it("Your notes has exactly one empty alert region from the first render; the form keeps its two regions (AC-17)", () => {
+  it("Your notes has exactly one empty alert region and one empty status region from the first render; the form keeps its two regions (AC-17, revised by edit-delete-note AC-38)", () => {
     const app = renderApp(createStubRepository());
     const section = notesSection();
     const alerts = within(section).getAllByRole("alert");
     expect(alerts).toHaveLength(1);
     expect(alerts[0]?.textContent).toBe("");
+    const statuses = within(section).getAllByRole("status");
+    expect(statuses).toHaveLength(1);
+    expect(statuses[0]?.textContent).toBe("");
+    expect(section.querySelectorAll("[aria-live]")).toHaveLength(0);
     expect(within(app.form).getAllByRole("status")).toHaveLength(1);
     expect(within(app.form).getAllByRole("alert")).toHaveLength(1);
   });
@@ -262,7 +265,7 @@ describe("Your notes: states", () => {
     expect(within(section).queryAllByRole("listitem")).toHaveLength(0);
   });
 
-  it("no live region in Your notes gets text except on a load failure (AC-43)", async () => {
+  it("no alert or aria-live region in Your notes gets text except on a load failure (AC-43, revised by edit-delete-note AC-38)", async () => {
     const silent = () =>
       expect(liveRegions().map((region) => region.textContent)).toEqual([""]);
 

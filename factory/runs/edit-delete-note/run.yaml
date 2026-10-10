@@ -1,0 +1,83 @@
+# SpecFabric run ledger — one per feature slug, at factory/runs/edit-delete-note/run.yaml.
+# Written only by the /factory orchestrator (and appended to by manual
+# stage commands). Humans read it; humans approve in the artifacts
+# themselves (Status: approved), not here.
+#
+# Stage status: pending -> in_progress -> awaiting_approval -> approved -> done
+#               (or blocked, with a reason). Non-gated stages skip
+#               awaiting_approval/approved and go straight to done.
+
+slug: edit-delete-note
+mode: greenfield            # greenfield (came from a charter) | brownfield
+source: "product/charter.md"
+current_stage: ship
+status: in_progress            # pending | in_progress | awaiting_approval | blocked | done
+waiting_on: null
+review_iterations: 3
+
+stages:
+  intent:    { status: done, agent: intent-agent,  artifact: specs/edit-delete-note/intent.md, started: 2026-10-09T05:09:51Z, completed: 2026-10-09T05:12:15Z}
+  spec:      { status: done, agent: spec-agent,    artifact: specs/edit-delete-note/spec.md,   started: 2026-10-09T05:26:50Z, completed: 2026-10-09T18:12:27Z, approved_by: "AITechie, 2026-10-09" }
+  plan:      { status: done, agent: plan-agent,    artifact: specs/edit-delete-note/plan.md,   started: 2026-10-09T05:41:31Z, completed: 2026-10-09T18:12:27Z, approved_by: "AITechie, 2026-10-10" }
+  implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-09T18:12:27Z, completed: 2026-10-10T06:18:04Z, tests: "vitest 558/558, playwright 101/101, ci exit 0" }
+  review:    { status: done, agent: review-agent,  artifact: specs/edit-delete-note/review.md, started: 2026-10-10T06:12:45Z, completed: 2026-10-10T06:45:34Z, decision: approve}
+  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-10T06:45:34Z, completed: null, confirmed_by: null }
+
+open_questions: []          # questions relayed to humans and not yet answered
+
+tracker:                    # Jira mode only (team.yaml tracker.mode: jira); ignored otherwise
+  epic: null                # e.g. PROJ-123 (authoritative; an artifact's "Jira:" header may say "pending")
+  source_issue: null        # imported non-Epic issue linked to the Epic, if any
+  stories: {}               # user story -> Jira key, e.g. { US-1: PROJ-124 }
+  dropped_stories: {}       # stories removed from a re-approved spec (kept, never closed)
+  spec_synced: null         # spec.md Approval section the Stories were last written from
+  bugs: {}                  # incident.md path -> Jira Bug key
+  synced:                   # what Jira was last successfully set to
+    event_index: 0          # ledger events already posted as Jira comments
+    status: null            # Epic status last set
+    gate: null              # stage whose approval label/assignee is set, or null
+    closed: []              # Story keys already moved to the ship status
+  last_sync: null           # time of the last complete reconcile
+  last_seen_comment: null   # creation time of the newest Epic comment already read
+  pending: null             # {since, reason} while Jira is behind; cleared by a complete reconcile
+
+events:                     # append-only; newest last
+  - { at: 2026-10-09T05:09:51Z, stage: intent, actor: orchestrator, event: queued_from_charter, note: "charter Revision 2026-10-09 approved by AITechie" }
+  - { at: 2026-10-09T05:09:51Z, stage: intent, actor: orchestrator, event: stage_started, note: "intent-agent dispatched in parallel with list-notes (solo mode)" }
+  - { at: 2026-10-09T05:12:15Z, stage: intent, actor: orchestrator, event: intent_drafted, note: "specs/edit-delete-note/intent.md; spec waits for approved list-notes spec" }
+  - { at: 2026-10-09T05:26:50Z, stage: spec, actor: orchestrator, event: stage_started, note: "spec-agent dispatched (list-notes spec now approved; solo mode)" }
+  - { at: 2026-10-09T05:41:31Z, stage: spec, actor: orchestrator, event: spec_drafted, note: "specs/edit-delete-note/spec.md (draft; solo mode: plan next, one design gate)" }
+  - { at: 2026-10-09T05:41:31Z, stage: plan, actor: orchestrator, event: stage_started, note: "plan-agent dispatched on draft spec (solo mode)" }
+  - { at: 2026-10-09T17:39:29Z, stage: plan, actor: orchestrator, event: agent_failed, note: "plan-agent stopped by usage limit before writing plan.md" }
+  - { at: 2026-10-09T17:47:56Z, stage: plan, actor: orchestrator, event: agent_resumed, note: "plan-agent resumed (list-notes built, in review)" }
+  - { at: 2026-10-09T17:54:32Z, stage: spec, actor: orchestrator, event: spec_ready, note: "spec.md drafted; combined gate" }
+  - { at: 2026-10-09T17:54:32Z, stage: plan, actor: orchestrator, event: awaiting_approval, note: "Owner (AITechie): approve specs/edit-delete-note/spec.md and plan.md" }
+  - { at: 2026-10-09T18:12:27Z, stage: spec, actor: orchestrator, event: approved, note: "spec.md approved by AITechie, 2026-10-09" }
+  - { at: 2026-10-09T18:12:27Z, stage: plan, actor: orchestrator, event: approved, note: "plan.md approved by AITechie, 2026-10-09" }
+  - { at: 2026-10-09T18:12:27Z, stage: implement, actor: orchestrator, event: stage_started, note: "build-agent dispatched" }
+  - { at: 2026-10-09T18:24:43Z, stage: implement, actor: orchestrator, event: ship_preapproved, note: "AITechie in conversation: 'yes, pre-approve' — if review approves and CI is green, commit, push, open PR, merge and verify deploy without stopping; any red stops." }
+  - { at: 2026-10-09T22:31:03Z, stage: implement, actor: orchestrator, event: agent_resumed, note: "build-agent resumed after usage limit" }
+  - { at: 2026-10-10T06:05:48Z, stage: implement, actor: orchestrator, event: agent_resumed, note: "build-agent resumed after stall (watchdog)" }
+  - { at: 2026-10-10T06:06:42Z, stage: implement, actor: orchestrator, event: blocked, note: "4 real e2e reds are artifact gaps: AC-46 axe incomplete on dialog text over dimmed backdrop (x3); list-notes notes-layout AC-48 Shift+Tab order now hits Delete; AC-52 100k+1 wording. Code not loosened." }
+  - { at: 2026-10-10T06:07:58Z, stage: spec, actor: orchestrator, event: spec_revised, note: "Revision 2026-10-10 (AC-46 contrast, list-notes AC-48 row, AC-52 wording); back to draft for re-approval" }
+  - { at: 2026-10-10T06:08:29Z, stage: plan, actor: orchestrator, event: awaiting_approval, note: "Owner (AITechie): re-approve spec.md and plan.md (Revision 2026-10-10)" }
+  - { at: 2026-10-10T06:10:27Z, stage: spec, actor: orchestrator, event: approved, note: "spec.md (Revision 2026-10-10) re-approved by AITechie" }
+  - { at: 2026-10-10T06:10:27Z, stage: plan, actor: orchestrator, event: approved, note: "plan.md (Revision 2026-10-10) re-approved by AITechie" }
+  - { at: 2026-10-10T06:10:27Z, stage: implement, actor: orchestrator, event: stage_started, note: "build-agent resumed to apply Revision 2026-10-10 test changes" }
+  - { at: 2026-10-10T06:12:45Z, stage: implement, actor: orchestrator, event: stage_done, note: "tests green: vitest 546/546, playwright 101/101, npm run ci exit 0 (Node 24.18.0)" }
+  - { at: 2026-10-10T06:12:45Z, stage: review, actor: orchestrator, event: stage_started, note: "review-agent dispatched" }
+  - { at: 2026-10-10T06:16:40Z, stage: review, actor: orchestrator, event: review_decision, note: "changes_requested (iteration 1): F1 hashNavigation.restoreHeld stale enteredLength breaks R20" }
+  - { at: 2026-10-10T06:16:41Z, stage: implement, actor: orchestrator, event: stage_started, note: "build-agent rework: F1 (+F2, F3)" }
+  - { at: 2026-10-10T06:18:04Z, stage: implement, actor: orchestrator, event: stage_done, note: "rework green: vitest 548/548, playwright 101/101, ci exit 0; F1 fixed with 2 unit tests, F2, F3 done" }
+  - { at: 2026-10-10T06:18:04Z, stage: review, actor: orchestrator, event: stage_started, note: "review-agent re-review (iteration 2)" }
+  - { at: 2026-10-10T06:20:34Z, stage: review, actor: orchestrator, event: review_decision, note: "changes_requested (iteration 2): F1/F2/F3 fixed; new F5 restoreHeld direction from neighbour equality breaks R20 after Forward" }
+  - { at: 2026-10-10T06:20:34Z, stage: implement, actor: orchestrator, event: stage_started, note: "build-agent rework: F5 (last rework before tech_lead escalation)" }
+  - { at: 2026-10-10T06:26:50Z, stage: implement, actor: orchestrator, event: stage_done, note: "F5 fixed via recorded move + Navigation API index tie-break (fallback forward() without the API); vitest 558/558, playwright 101/101" }
+  - { at: 2026-10-10T06:26:50Z, stage: review, actor: orchestrator, event: stage_started, note: "final re-review (iteration 3 would escalate to tech_lead)" }
+  - { at: 2026-10-10T06:28:42Z, stage: review, actor: orchestrator, event: blocked, note: "review loop not converging - needs tech_lead (iteration 3). Code approvable; only blocker is plan.md D7/Step 4/API item 3 sync for the Navigation API restore rule. Plan revision dispatched; owner re-approval needed." }
+  - { at: 2026-10-10T06:30:10Z, stage: plan, actor: plan-agent, event: drafted, note: "Revision 2026-10-10b: D7 restore rule, Step 4, API item 3 (NavWindow.navigation), risk R10, build note 11. Status draft." }
+  - { at: 2026-10-10T06:30:10Z, stage: plan, actor: orchestrator, event: awaiting_approval, note: "Tech Lead (AITechie): re-approve specs/edit-delete-note/plan.md (Revision 2026-10-10b, plan sync only; code approved by review)" }
+  - { at: 2026-10-10T06:44:41Z, stage: plan, actor: AITechie, event: approved, note: "plan.md Revision 2026-10-10b approved (AITechie, 2026-10-10); tech_lead resolves review block" }
+  - { at: 2026-10-10T06:44:41Z, stage: review, actor: orchestrator, event: dispatched, note: "confirmation pass: plan text vs code, no code change" }
+  - { at: 2026-10-10T06:45:34Z, stage: review, actor: review-agent, event: approve, note: "iteration 4: plan 2026-10-10b matches code; no code change; CI 558/558, 101/101 stands" }
+  - { at: 2026-10-10T06:45:34Z, stage: ship, actor: orchestrator, event: started, note: "shipping under owner pre-approval (yes, pre-approve)" }

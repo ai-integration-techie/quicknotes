@@ -12,6 +12,8 @@ interface NoteFormProps {
   readonly active: boolean;
   /** Called with the note `create` resolved with (list-notes R14). */
   onSaved(note: Note): void;
+  /** A save attempt started (edit-delete-note R35). */
+  onAttempt?(): void;
 }
 
 /** The "New note" section (create-note R1-R4, R34). */
@@ -19,10 +21,11 @@ export default function NoteForm({
   repository,
   active,
   onSaved,
+  onAttempt,
 }: NoteFormProps) {
   const headingId = useId();
   const { state, titleRef, bodyRef, onChange, onKeyDown, onSubmit } =
-    useNoteForm(repository, { active, onSaved });
+    useNoteForm(repository, { active, onSaved, onAttempt });
   const saving = state.phase === "saving";
 
   return (

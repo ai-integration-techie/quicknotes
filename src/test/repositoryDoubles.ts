@@ -38,14 +38,16 @@ export interface StubOptions {
   readonly create?: (input: NoteInput) => Promise<Note>;
   readonly list?: () => Promise<Note[]>;
   readonly get?: (id: string) => Promise<Note>;
+  readonly update?: (id: string, input: NoteInput) => Promise<Note>;
+  readonly delete?: (id: string) => Promise<void>;
 }
 
 /**
  * A repository whose every method is a spy. `create` resolves a note
  * unless `create` is given. `list` never settles unless `list` is given
- * (list-notes plan D13a), so the "Your notes" section stays loading. `get`
- * rejects unless given; `update`, `delete` and `isPersisted` reject if
- * ever called.
+ * (list-notes plan D13a), so the "Your notes" section stays loading. `get`,
+ * `update` and `delete` reject unless given (edit-delete-note); and
+ * `isPersisted` rejects if ever called.
  */
 export function createStubRepository(options: StubOptions = {}): SpyRepository {
   return {
@@ -54,8 +56,8 @@ export function createStubRepository(options: StubOptions = {}): SpyRepository {
         ((input: NoteInput) => Promise.resolve(savedNote(input))),
     ),
     get: vi.fn(options.get ?? unused("get")),
-    update: vi.fn(unused("update")),
-    delete: vi.fn(unused("delete")),
+    update: vi.fn(options.update ?? unused("update")),
+    delete: vi.fn(options.delete ?? unused("delete")),
     list: vi.fn(options.list ?? (() => never<Note[]>())),
     isPersisted: vi.fn(unused("isPersisted")),
   };
@@ -91,4 +93,18 @@ export function deferred<T>(): Deferred<T> {
 /** A note for resolving a deferred `create`. */
 export function noteFor(input: NoteInput): Note {
   return savedNote(input);
+}
+
+/** Every method of `repository` wrapped in a spy that calls through (edit-delete-note). */
+export function spyOn(repository: NoteRepository): SpyRepository {
+  return {
+    create: vi.fn((input: NoteInput) => repository.create(input)),
+    get: vi.fn((id: string) => repository.get(id)),
+    update: vi.fn((id: string, input: NoteInput) =>
+      repository.update(id, input),
+    ),
+    delete: vi.fn((id: string) => repository.delete(id)),
+    list: vi.fn(() => repository.list()),
+    isPersisted: vi.fn(() => repository.isPersisted()),
+  };
 }
