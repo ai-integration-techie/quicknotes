@@ -8,7 +8,8 @@ import {
   NOTES_LOADING,
 } from "../copy";
 import type { ListState } from "../noteList/listState";
-import NoteList, { type NoteListHandle } from "./NoteList";
+import { type NoteListHandle } from "./NoteList";
+import SearchableNotes from "./SearchableNotes";
 
 export const NOTES_HEADING_ID = "notes-heading";
 
@@ -50,7 +51,10 @@ function Body({
       </div>
     );
   }
-  return <NoteList ref={listRef} notes={state.notes} now={state.now} />;
+  // search-notes R1, R2: the search area only over a loaded, non-empty list.
+  return (
+    <SearchableNotes listRef={listRef} notes={state.notes} now={state.now} />
+  );
 }
 
 /**

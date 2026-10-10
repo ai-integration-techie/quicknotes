@@ -8,6 +8,8 @@ import UpdatedLine from "./UpdatedLine";
 interface NoteListItemProps {
   readonly note: Note;
   readonly now: number;
+  /** Hidden from sight, Tab and assistive technology (search-notes R11, D3). */
+  readonly hidden?: boolean;
   onLink(id: string, link: HTMLAnchorElement | null): void;
 }
 
@@ -17,7 +19,12 @@ interface NoteListItemProps {
  * the updated line. The app adds no click handler, so the browser follows
  * the link and adds the history entry (R16).
  */
-function NoteListItem({ note, now, onLink }: NoteListItemProps) {
+function NoteListItem({
+  note,
+  now,
+  hidden = false,
+  onLink,
+}: NoteListItemProps) {
   const titleId = useId();
   const previewId = useId();
   const updatedId = useId();
@@ -26,7 +33,7 @@ function NoteListItem({ note, now, onLink }: NoteListItemProps) {
     preview === null ? updatedId : `${previewId} ${updatedId}`;
 
   return (
-    <li>
+    <li hidden={hidden}>
       <a
         ref={(link) => onLink(note.id, link)}
         href={noteHref(note.id)}
