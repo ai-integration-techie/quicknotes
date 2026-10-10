@@ -59,13 +59,9 @@ export default function NoteList({
       className="mt-3 rounded-md border border-zinc-300 bg-white [&>li]:border-zinc-200 [&>li:not([hidden])~li]:border-t"
     >
       {notes.map((note) => (
-        <NoteListItem
-          key={note.id}
-          note={note}
-          now={now}
-          hidden={shown !== null && !shown.has(note.id)}
-          onLink={onLink}
-        />
+        <li key={note.id} hidden={shown !== null && !shown.has(note.id)}>
+          <NoteListItem note={note} now={now} onLink={onLink} />
+        </li>
       ))}
     </ul>
   );

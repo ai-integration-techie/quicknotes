@@ -89,5 +89,23 @@ No correctness bugs, privacy problems or security problems found.
 
 Nothing is blocking. Before ship, AC-34 must be recorded here by a human, and AC-35 is a manual ship check. Watch the first GitHub Actions run of AC-27 (finding 1). Findings 2-4 are optional follow-ups.
 
+## Iteration 2 — AC-27 CI fix (uncommitted diff on top of bd9c4cf)
+Scope: `src/components/NoteList.tsx`, `src/components/NoteListItem.tsx`, plan build notes B1/B2. No test, e2e or budget file changed (`git diff --stat HEAD -- e2e tests` is empty).
+
+Verification (re-run by reviewer): `CI=1 npm run ci` green (format, lint, typecheck, vitest, build, 118/118 Playwright). `e2e/search-performance.spec.ts` re-run: AC-27, AC-28, AC-29 pass.
+
+- **Memo props stable:** **yes**. `onLink` is `useCallback([])`, `note` objects come from the list unchanged, and `now` is a number. Moving `hidden` onto the `<li>` that `NoteList` owns means a search toggle re-renders only the `<li>`, not the memoised item. That is the intended win.
+- **Ref callback:** the inline `ref` in `NoteListItem` is recreated only when the item re-renders (a `now` tick or a note change). React then detaches and reattaches it, and `onLink` deletes and re-sets the same map entry. That's correct and the same as before.
+- **`focusNote` on hidden items:** unchanged and still correct. `link.closest("li")` is still the `<li hidden>` parent, so R17/AC for a hidden note still returns false.
+- **`now` updates:** `now` is still a prop of the memoised item, so relative times still refresh on tick.
+- **DOM / a11y / copy:** unchanged. The output is still `ul[role=list] > li[hidden?] > a` with the same classes, ids and aria wiring. The divider selector `[&>li:not([hidden])~li]` still targets the same `<li>`.
+- **Tests not loosened:** confirmed. The budget, the median-of-3 rule and the assertions are untouched.
+- **B1/B2 accurate:** B1 matches the diff. One wording nit: B1 says "memoised `NoteListItem`" as if new, but `memo` was already there at bd9c4cf. The fix is moving `hidden` out of its props. The reviewer did not reproduce B1's medians; the passing run is consistent with them. B2 matches: no `content-visibility` anywhere in the diff. The focus-ring clipping rationale is plausible and is recorded rather than shipped.
+- **API contract:** the iteration 1 deviation "`NoteListItem` `hidden?` optional" is now moot because the prop is removed. `NoteList`'s `shown` contract is unchanged. The plan's contract line for `NoteListItem` should drop `hidden`. B1 effectively records this; it's a non-blocking doc nit. Three places in `plan.md` still describe the old design: D3 (line 38), the contract line `NoteListItem` props `hidden: boolean` (line 89) and the changes-table row for `NoteListItem.tsx` (line 142). They should point to B1, which supersedes them.
+
+Residual risk: CI headroom is now about 2x locally (Clear ~38 ms), but only the next GitHub Actions run proves AC-27 there.
+
+**Decision (iteration 2): approve.** Nothing is blocking. Confirm AC-27 on the PR's CI run before ship.
+
 ## Sign-off
 - Reviewed by: <name>, <date>
