@@ -239,7 +239,7 @@ test.describe("notes layout", () => {
     }
   });
 
-  test("skip link: hidden until Shift+Tab from Title, 44px, accent outline, Enter then Tab reaches the note (AC-42)", async ({
+  test("skip link: hidden until Shift+Tab from Title, 44px, accent outline, Enter then Tab reaches Search notes, then the note (AC-42, revised by search-notes AC-23)", async ({
     page,
   }) => {
     const form = await openForm(page);
@@ -271,6 +271,12 @@ test.describe("notes layout", () => {
       page.getByRole("heading", { level: 2, name: NOTES_COPY.heading }),
     ).toBeFocused();
     expect(page.url()).toBe(url);
+    // search-notes AC-23 (revising AC-42's last clause): the next Tab
+    // reaches "Search notes", and the note's link follows it.
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("searchbox", { name: "Search notes", exact: true }),
+    ).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(noteLink(page, "Only")).toBeFocused();
   });

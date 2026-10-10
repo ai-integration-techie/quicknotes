@@ -137,4 +137,16 @@ describe("copy", () => {
       "The note wasn't deleted because something went wrong. It's still here, so you can try again.",
     );
   });
+  it("every search-notes string matches the spec exactly", () => {
+    expect(copy.SEARCH_LABEL).toBe("Search notes");
+    expect(copy.CLEAR_SEARCH).toBe("Clear search");
+    expect(copy.NO_MATCHES_PRIMARY).toBe("No matching notes");
+    expect(copy.NO_MATCHES_SECONDARY).toBe(
+      "Try fewer or different words, or clear the search to see all your notes.",
+    );
+    expect(copy.searchStatusText(0)).toBe("No notes match");
+    expect(copy.searchStatusText(1)).toBe("1 note matches");
+    expect(copy.searchStatusText(2)).toBe("2 notes match");
+    expect(copy.searchStatusText(1000)).toBe("1,000 notes match");
+  });
 });

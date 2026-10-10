@@ -10,18 +10,18 @@
 slug: search-notes
 mode: greenfield            # greenfield (came from a charter) | brownfield
 source: "product/charter.md"
-current_stage: intent
-status: pending            # pending | in_progress | awaiting_approval | blocked | done
-waiting_on: null            # e.g. "product_owner (Priya): approve specs/search-notes/spec.md"
+current_stage: ship
+status: in_progress            # pending | in_progress | awaiting_approval | blocked | done
+waiting_on: null
 review_iterations: 0
 
 stages:
-  intent:    { status: pending, agent: intent-agent,  artifact: specs/search-notes/intent.md, started: null, completed: null }
-  spec:      { status: pending, agent: spec-agent,    artifact: specs/search-notes/spec.md,   started: null, completed: null, approved_by: null }
-  plan:      { status: pending, agent: plan-agent,    artifact: specs/search-notes/plan.md,   started: null, completed: null, approved_by: null }
-  implement: { status: pending, agent: build-agent,   artifact: null,                   started: null, completed: null, tests: null }
-  review:    { status: pending, agent: review-agent,  artifact: specs/search-notes/review.md, started: null, completed: null, decision: null }
-  ship:      { status: pending, agent: release-agent, artifact: null,                   started: null, completed: null, confirmed_by: null }
+  intent:    { status: done, agent: intent-agent,  artifact: specs/search-notes/intent.md, started: 2026-10-09T05:33:28Z, completed: 2026-10-09T05:42:06Z}
+  spec:      { status: done, agent: spec-agent,    artifact: specs/search-notes/spec.md,   started: 2026-10-09T05:42:06Z, completed: 2026-10-09T22:31:08Z, approved_by: "AITechie, 2026-10-09" }
+  plan:      { status: done, agent: plan-agent,    artifact: specs/search-notes/plan.md,   started: 2026-10-09T18:02:02Z, completed: 2026-10-09T22:31:08Z, approved_by: "AITechie, 2026-10-09" }
+  implement: { status: done, agent: build-agent,   artifact: null,                   started: 2026-10-10T06:51:17Z, completed: 2026-10-10T19:07:31Z, tests: "vitest 611/611, playwright 118/118, ci exit 0" }
+  review:    { status: done, agent: review-agent,  artifact: specs/search-notes/review.md, started: 2026-10-10T19:07:31Z, completed: 2026-10-10T19:10:32Z, decision: approve }
+  ship:      { status: in_progress, agent: release-agent, artifact: null,                   started: 2026-10-10T19:20:52Z, completed: null, confirmed_by: null }
 
 open_questions: []          # questions relayed to humans and not yet answered
 
@@ -43,3 +43,24 @@ tracker:                    # Jira mode only (team.yaml tracker.mode: jira); ign
 
 events:                     # append-only; newest last
   - { at: 2026-10-04T08:20:09Z, stage: intent, actor: orchestrator, event: queued_from_charter, note: "product/charter.md approved by AITechie" }
+  - { at: 2026-10-09T05:33:28Z, stage: intent, actor: orchestrator, event: stage_started, note: "intent-agent dispatched in parallel (owner: yes, all)" }
+  - { at: 2026-10-09T05:35:24Z, stage: intent, actor: orchestrator, event: needs_input, note: "2 owner questions (matching rules, query in URL); batched with pwa-offline and theme-mode" }
+  - { at: 2026-10-09T05:42:06Z, stage: intent, actor: orchestrator, event: intent_drafted, note: "specs/search-notes/intent.md (owner decisions 2026-10-09)" }
+  - { at: 2026-10-09T05:42:06Z, stage: spec, actor: orchestrator, event: stage_started, note: "spec-agent dispatched (solo mode)" }
+  - { at: 2026-10-09T17:39:29Z, stage: spec, actor: orchestrator, event: agent_failed, note: "spec-agent stopped by usage limit before writing spec.md" }
+  - { at: 2026-10-09T17:54:40Z, stage: spec, actor: orchestrator, event: agent_resumed, note: "spec-agent resumed (list-notes shipped)" }
+  - { at: 2026-10-09T18:02:02Z, stage: spec, actor: orchestrator, event: spec_drafted, note: "specs/search-notes/spec.md (draft; solo: plan next)" }
+  - { at: 2026-10-09T18:02:02Z, stage: plan, actor: orchestrator, event: stage_started, note: "plan-agent dispatched on draft spec (solo mode)" }
+  - { at: 2026-10-09T18:07:16Z, stage: spec, actor: orchestrator, event: spec_ready, note: "combined gate" }
+  - { at: 2026-10-09T18:07:16Z, stage: plan, actor: orchestrator, event: awaiting_approval, note: "Owner (AITechie): approve specs/search-notes/spec.md and plan.md" }
+  - { at: 2026-10-09T22:31:08Z, stage: spec, actor: orchestrator, event: approved, note: "spec.md approved by AITechie, 2026-10-09" }
+  - { at: 2026-10-09T22:31:08Z, stage: plan, actor: orchestrator, event: approved, note: "plan.md approved by AITechie, 2026-10-09" }
+  - { at: 2026-10-10T06:51:17Z, stage: implement, actor: orchestrator, event: dispatched, note: "build-agent on main b25a4a4 (edit-delete-note merged)" }
+  - { at: 2026-10-10T19:07:31Z, stage: implement, actor: build-agent, event: done, note: "CI exit 0: vitest 611/611, playwright 118/118; 9 accepted build notes; AC-34/35 manual; AC-27 slowest restore ~73 ms" }
+  - { at: 2026-10-10T19:07:31Z, stage: review, actor: orchestrator, event: dispatched, note: "review-agent" }
+  - { at: 2026-10-10T19:10:32Z, stage: review, actor: review-agent, event: approve, note: "no blocking; independent CI 611/611, 118/118; AC-27 Clear/Escape ~72-76 ms median (CI flake risk); AC-34/35 manual" }
+  - { at: 2026-10-10T19:10:32Z, stage: ship, actor: orchestrator, event: awaiting_approval, note: "Release Manager (AITechie): yes to commit, push, PR and merge after green CI; AC-34 manual check (or defer)" }
+  - { at: 2026-10-10T19:20:52Z, stage: ship, actor: AITechie, event: confirmed, note: "owner said yes (commit, push, PR, merge after green CI); chose plain yes, so AC-34 recorded as checked by owner" }
+  - { at: 2026-10-10T19:24:23Z, stage: ship, actor: orchestrator, event: blocked, note: "PR #8 CI red: AC-27 Clear search median 102 ms (runs 100/103/102) > 100 ms on GitHub runners. Not merged. Applying plan fallback content-visibility: auto." }
+  - { at: 2026-10-10T19:29:49Z, stage: implement, actor: build-agent, event: rework_done, note: "NoteList renders li hidden; memoised NoteListItem renders only the link. Clear 38 ms, Escape 35 ms medians locally. content-visibility tried and dropped (clipped focus ring, slower hide steps); build notes B1/B2. CI 611/611, 118/118." }
+  - { at: 2026-10-10T19:31:28Z, stage: review, actor: review-agent, event: approve, note: "iteration 2: perf fix correct; local CI green; confirm AC-27 on GitHub CI. Doc nit: plan D3/l.89/l.142 should point to B1." }

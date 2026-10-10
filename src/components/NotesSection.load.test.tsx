@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import App from "../App";
 import {
+  CLEAR_SEARCH,
   INFO_PRIMARY,
   INFO_SECONDARY,
   LIST_FAILED,
@@ -13,6 +14,7 @@ import {
   NOTES_EMPTY_SECONDARY,
   NOTES_HEADING,
   NOTES_LOADING,
+  SEARCH_LABEL,
   TITLE_LABEL,
 } from "../copy";
 import {
@@ -88,7 +90,16 @@ describe("Your notes: first load", () => {
     expect(within(newNote).getAllByRole("textbox")).toHaveLength(2);
     expect(within(newNote).getAllByRole("button")).toHaveLength(1);
     expect(within(newNote).queryAllByRole("link")).toHaveLength(0);
-    expect(screen.queryAllByRole("searchbox")).toHaveLength(0);
+    // search-notes AC-1 (revising list-notes AC-1): exactly one searchbox,
+    // "Search notes", inside Your notes; none in New note; no Clear search.
+    expect(within(newNote).queryAllByRole("searchbox")).toHaveLength(0);
+    const searchboxes = screen.getAllByRole("searchbox");
+    expect(searchboxes).toHaveLength(1);
+    expect(searchboxes[0]).toHaveAccessibleName(SEARCH_LABEL);
+    expect(notes.contains(searchboxes[0] as HTMLElement)).toBe(true);
+    expect(
+      screen.queryByRole("button", { name: CLEAR_SEARCH }),
+    ).not.toBeInTheDocument();
     expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
     expect(noteLinks()).toHaveLength(2);
   });

@@ -91,7 +91,8 @@ describe("App shell", () => {
     expect(screen.getAllByRole("textbox")).toHaveLength(2);
     expect(screen.getAllByRole("button")).toHaveLength(1);
     // list-notes AC-1 change: no link inside "New note"; page-wide, only
-    // the skip link (the list is still loading), and no searchbox or checkbox.
+    // the skip link (the list is still loading), and no searchbox or checkbox
+    // (search-notes: none while loading, R2).
     expect(within(section as HTMLElement).queryAllByRole("link")).toHaveLength(
       0,
     );

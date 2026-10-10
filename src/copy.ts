@@ -117,3 +117,17 @@ export const DELETE_UNAVAILABLE =
   "The note wasn't deleted. This browser isn't letting QuickNotes change its storage right now, which can happen in private browsing. The note is still here.";
 export const DELETE_FAILED =
   "The note wasn't deleted because something went wrong. It's still here, so you can try again.";
+
+// search-notes: the search field in "Your notes".
+export const SEARCH_LABEL = "Search notes";
+export const CLEAR_SEARCH = "Clear search";
+export const NO_MATCHES_PRIMARY = "No matching notes";
+export const NO_MATCHES_SECONDARY =
+  "Try fewer or different words, or clear the search to see all your notes.";
+
+/** The search status count (search-notes R15): "No notes match", "1 note matches", "{n} notes match". */
+export function searchStatusText(n: number): string {
+  if (n === 0) return "No notes match";
+  if (n === 1) return "1 note matches";
+  return `${formatCount(n)} notes match`;
+}
